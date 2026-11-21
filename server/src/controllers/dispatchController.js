@@ -103,17 +103,28 @@ export async function getJobById(req, res, next) {
 
 /**
  * GET /api/webhooks/jobs
- * List recent jobs with optional status filter and pagination
+ * List recent jobs with optional status filter, search query, and pagination
  */
 export async function listJobs(req, res, next) {
   try {
     const page = Math.max(1, parseInt(req.query.page || '1', 10));
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit || '20', 10)));
     const status = req.query.status;
+    const search = req.query.search;
 
     const filter = {};
     if (status && ['QUEUED', 'PROCESSING', 'RETRYING', 'SUCCESS', 'FAILED'].includes(status.toUpperCase())) {
       filter.status = status.toUpperCase();
+    }
+
+    if (search && search.trim()) {
+      const searchRegex = new RegExp(search.trim(), 'i');
+      filter.$or = [
+        { jobId: searchRegex },
+        { eventId: searchRegex },
+        { domain: searchRegex },
+        { destinationUrl: searchRegex },
+      ];
     }
 
     const [jobs, total] = await Promise.all([
@@ -133,6 +144,50 @@ export async function listJobs(req, res, next) {
         totalPages: Math.ceil(total / limit),
       },
       jobs,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * POST /api/webhooks/jobs/:jobId/retry
+ * Manual Replay Endpoint: Re-queues a failed/DLQ webhook job for immediate background re-delivery
+ */
+export async function retryJob(req, res, next) {
+  try {
+    const { jobId } = req.params;
+    const job = await WebhookJob.findOne({ jobId });
+
+    if (!job) {
+      return res.status(404).json({
+        error: 'NotFound',
+        message: `Webhook job '${jobId}' does not exist`,
+      });
+    }
+
+    // Reset job state in database
+    job.status = 'QUEUED';
+    job.currentAttempt = 0;
+    job.lastError = null;
+    job.nextRetryAt = null;
+    await job.save();
+
+    // Re-push job to BullMQ queue
+    await enqueueWebhook({
+      jobId: job.jobId,
+      eventId: job.eventId,
+      destinationUrl: job.destinationUrl,
+      domain: job.domain,
+      payload: job.payload,
+    });
+
+    console.log(`[Manual Replay] Job ${jobId} re-queued by user for re-dispatch.`);
+
+    return res.status(200).json({
+      success: true,
+      message: `Webhook job ${jobId} successfully re-queued for delivery`,
+      job,
     });
   } catch (error) {
     next(error);

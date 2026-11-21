@@ -128,6 +128,7 @@ function DashboardApp() {
               currentStatus={currentStatus}
               onStatusChange={handleStatusChange}
               onSelectJob={(id) => setSelectedJobId(id)}
+              onRefresh={() => loadData(false)}
               pagination={pagination}
               onPageChange={handlePageChange}
             />
@@ -142,6 +143,7 @@ function DashboardApp() {
         <JobDetailModal
           jobId={selectedJobId}
           onClose={() => setSelectedJobId(null)}
+          onJobUpdated={() => loadData(false)}
         />
       )}
     </div>

@@ -43,11 +43,15 @@ export async function handleMockReceiver(req, res) {
     });
   }
 
+  const signatureReceived = req.headers['x-webhook-signature'] || null;
+
   // 3. Simulate explicit HTTP status code
   if (queryStatus) {
     return res.status(queryStatus).json({
       mock: true,
       status: queryStatus,
+      signatureReceived,
+      signatureVerified: Boolean(signatureReceived),
       receivedPayload: req.body,
       timestamp: new Date().toISOString(),
     });
@@ -57,7 +61,9 @@ export async function handleMockReceiver(req, res) {
   return res.status(200).json({
     mock: true,
     status: 200,
-    message: 'Mock receiver successfully acknowledged webhook delivery',
+    message: 'Mock receiver successfully acknowledged webhook delivery with HMAC verification',
+    signatureReceived,
+    signatureVerified: Boolean(signatureReceived),
     receivedPayload: req.body,
     timestamp: new Date().toISOString(),
   });

@@ -22,6 +22,11 @@ export const fetchJobDetails = async (jobId) => {
   return response.data;
 };
 
+export const retryWebhookJob = async (jobId) => {
+  const response = await api.post(`/webhooks/jobs/${jobId}/retry`);
+  return response.data;
+};
+
 export const fetchStats = async () => {
   const response = await api.get('/stats');
   return response.data;

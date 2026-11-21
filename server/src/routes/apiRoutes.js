@@ -4,6 +4,7 @@ import {
   dispatchWebhook,
   getJobById,
   listJobs,
+  retryJob,
 } from '../controllers/dispatchController.js';
 import {
   handleMockReceiver,
@@ -17,6 +18,7 @@ const router = express.Router();
 router.post('/webhooks/dispatch', validateDispatchPayload, dispatchWebhook);
 router.get('/webhooks/jobs', listJobs);
 router.get('/webhooks/jobs/:jobId', getJobById);
+router.post('/webhooks/jobs/:jobId/retry', retryJob); // Manual Replay / DLQ Retry
 
 // 2. Metrics & Telemetry
 router.get('/stats', getSystemStats);

@@ -36,7 +36,7 @@ async function processWebhookJob(job) {
   );
 
   // 3. Execute HTTP Dispatch
-  const dispatchResult = await executeWebhookDispatch(destinationUrl, payload);
+  const dispatchResult = await executeWebhookDispatch(destinationUrl, payload, { jobId, eventId });
 
   // 4. Record Audit Log in MongoDB
   await DeliveryAttempt.create({
@@ -44,6 +44,7 @@ async function processWebhookJob(job) {
     attemptNumber,
     httpStatus: dispatchResult.httpStatus,
     durationMs: dispatchResult.durationMs,
+    requestHeaders: dispatchResult.requestHeaders,
     responseBody: dispatchResult.responseBody,
     errorMessage: dispatchResult.errorMessage,
     attemptedAt: new Date(),
