@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  X, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Clock, 
-  ArrowDown, 
-  Copy, 
-  Check, 
+import {
+  X,
+  CheckCircle2,
+  AlertTriangle,
+  Clock,
+  ArrowDown,
+  Copy,
+  Check,
   ExternalLink,
   RotateCw,
   ShieldCheck,
@@ -85,7 +85,7 @@ export default function JobDetailModal({ jobId, onClose, onJobUpdated }) {
   const latestAttempt = data?.attempts && data.attempts.length > 0
     ? data.attempts[data.attempts.length - 1]
     : null;
-  const signatureHeader = latestAttempt?.requestHeaders?.['X-Webhook-Signature'] 
+  const signatureHeader = latestAttempt?.requestHeaders?.['X-Webhook-Signature']
     || 't=' + Math.floor(Date.now() / 1000) + ',v1=sha256_verified_signature';
 
   return (
@@ -100,15 +100,14 @@ export default function JobDetailModal({ jobId, onClose, onJobUpdated }) {
               </h3>
               {data?.job && (
                 <span
-                  className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider font-mono border ${
-                    data.job.status === 'SUCCESS'
+                  className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider font-mono border ${data.job.status === 'SUCCESS'
                       ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                       : data.job.status === 'RETRYING'
-                      ? 'bg-amber-50 text-amber-700 border-amber-200 animate-pulse'
-                      : data.job.status === 'FAILED'
-                      ? 'bg-rose-50 text-rose-700 border-rose-200'
-                      : 'bg-slate-100 text-slate-700 border-slate-200'
-                  }`}
+                        ? 'bg-amber-50 text-amber-700 border-amber-200 animate-pulse'
+                        : data.job.status === 'FAILED'
+                          ? 'bg-rose-50 text-rose-700 border-rose-200'
+                          : 'bg-slate-100 text-slate-700 border-slate-200'
+                    }`}
                 >
                   {data.job.status}
                 </span>
@@ -235,11 +234,10 @@ export default function JobDetailModal({ jobId, onClose, onJobUpdated }) {
                       return (
                         <div key={idx}>
                           <div
-                            className={`p-4 rounded-2xl border ${
-                              isSuccess
+                            className={`p-4 rounded-2xl border ${isSuccess
                                 ? 'bg-emerald-50/50 border-emerald-200'
                                 : 'bg-slate-50 border-slate-200'
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center gap-2.5">
@@ -247,11 +245,10 @@ export default function JobDetailModal({ jobId, onClose, onJobUpdated }) {
                                   Attempt #{att.attemptNumber}
                                 </span>
                                 <span
-                                  className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                    isSuccess
+                                  className={`px-2 py-0.5 rounded text-[10px] font-bold ${isSuccess
                                       ? 'bg-emerald-100 text-emerald-800'
                                       : 'bg-rose-100 text-rose-800'
-                                  }`}
+                                    }`}
                                 >
                                   {att.httpStatus ? `HTTP ${att.httpStatus}` : 'TIMEOUT / NETWORK ERROR'}
                                 </span>
