@@ -1,15 +1,15 @@
 import React from 'react';
-import { 
-  Send, 
-  CheckCircle2, 
-  RotateCw, 
-  AlertTriangle, 
-  Clock, 
-  Layers, 
-  ArrowRight, 
-  Zap, 
-  ShieldCheck, 
-  Activity 
+import {
+  Send,
+  CheckCircle2,
+  RotateCw,
+  AlertTriangle,
+  Clock,
+  Layers,
+  ArrowRight,
+  Zap,
+  ShieldCheck,
+  Activity
 } from 'lucide-react';
 import InteractiveHoverCard from '../components/InteractiveHoverCard';
 import sounds from '../utils/soundEngine';
@@ -121,7 +121,7 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
               position="bottom"
               className="w-full"
             >
-              <div 
+              <div
                 id={`metric-card-${idx}`}
                 data-testid={`metric-card-${idx}`}
                 className="glass-card rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 cursor-help w-full h-full"
@@ -286,15 +286,14 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
                   >
                     <td className="py-3 px-3">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                          job.status === 'SUCCESS'
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            : job.status === 'RETRYING'
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${job.status === 'SUCCESS'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : job.status === 'RETRYING'
                             ? 'bg-amber-50 text-amber-700 border-amber-200 animate-pulse'
                             : job.status === 'FAILED'
-                            ? 'bg-rose-50 text-rose-700 border-rose-200'
-                            : 'bg-slate-100 text-slate-600 border-slate-200'
-                        }`}
+                              ? 'bg-rose-50 text-rose-700 border-rose-200'
+                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                          }`}
                       >
                         {job.status}
                       </span>
@@ -306,13 +305,9 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
                       {job.eventId}
                     </td>
                     <td className="py-3 px-3 text-slate-600">
-                      {job.domain === 'localhost' ? (
-                        <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold" title="Dispatched to local dev receiver">
-                          localhost <span className="text-[9px] text-amber-500 font-normal">(dev)</span>
-                        </span>
-                      ) : job.domain && job.domain.includes('onrender.com') ? (
-                        <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold" title="Dispatched to live engine mock receiver">
-                          mock-receiver <span className="text-[9px] text-emerald-500 font-normal">(cloud)</span>
+                      {(!job.domain || job.domain === 'localhost' || job.domain === '127.0.0.1' || job.domain.includes('onrender.com')) ? (
+                        <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold" title="Engine Internal Mock Receiver">
+                          mock-receiver.internal
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold">
@@ -326,11 +321,10 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
                     <td className="py-3 px-3">
                       {job.lastStatusCode ? (
                         <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            job.lastStatusCode >= 200 && job.lastStatusCode < 300
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-rose-100 text-rose-800'
-                          }`}
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${job.lastStatusCode >= 200 && job.lastStatusCode < 300
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-rose-100 text-rose-800'
+                            }`}
                         >
                           HTTP {job.lastStatusCode}
                         </span>

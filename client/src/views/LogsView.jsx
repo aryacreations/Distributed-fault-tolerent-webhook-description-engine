@@ -267,13 +267,9 @@ export default function LogsView({
                       </td>
 
                       <td className="py-3.5 px-4 whitespace-nowrap">
-                        {job.domain === 'localhost' ? (
-                          <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold" title="Dispatched to local dev receiver">
-                            localhost <span className="text-[9px] text-amber-500 font-normal">(dev)</span>
-                          </span>
-                        ) : job.domain && job.domain.includes('onrender.com') ? (
-                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold" title="Dispatched to live engine mock receiver">
-                            mock-receiver <span className="text-[9px] text-emerald-500 font-normal">(cloud)</span>
+                        {(!job.domain || job.domain === 'localhost' || job.domain === '127.0.0.1' || job.domain.includes('onrender.com')) ? (
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold" title="Engine Internal Mock Receiver">
+                            mock-receiver.internal
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold">

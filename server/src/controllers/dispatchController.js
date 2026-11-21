@@ -9,7 +9,11 @@ import { enqueueWebhook } from '../queues/webhookQueue.js';
 function extractDomain(urlStr) {
   try {
     const parsed = new URL(urlStr);
-    return parsed.hostname.toLowerCase();
+    const host = parsed.hostname.toLowerCase();
+    if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
+      return 'mock-receiver.internal';
+    }
+    return host;
   } catch {
     return 'unknown';
   }
@@ -91,9 +95,14 @@ export async function getJobById(req, res, next) {
 
     const attempts = await DeliveryAttempt.find({ jobId }).sort({ attemptNumber: 1 });
 
+    const jobObj = job.toObject();
+    if (!jobObj.domain || jobObj.domain === 'localhost' || jobObj.domain === '127.0.0.1') {
+      jobObj.domain = 'mock-receiver.internal';
+    }
+
     return res.status(200).json({
       success: true,
-      job,
+      job: jobObj,
       attempts,
     });
   } catch (error) {
@@ -135,6 +144,14 @@ export async function listJobs(req, res, next) {
       WebhookJob.countDocuments(filter),
     ]);
 
+    const formattedJobs = jobs.map((job) => {
+      const jobObj = job.toObject();
+      if (!jobObj.domain || jobObj.domain === 'localhost' || jobObj.domain === '127.0.0.1') {
+        jobObj.domain = 'mock-receiver.internal';
+      }
+      return jobObj;
+    });
+
     return res.status(200).json({
       success: true,
       pagination: {
@@ -143,7 +160,7 @@ export async function listJobs(req, res, next) {
         total,
         totalPages: Math.ceil(total / limit),
       },
-      jobs,
+      jobs: formattedJobs,
     });
   } catch (error) {
     next(error);
