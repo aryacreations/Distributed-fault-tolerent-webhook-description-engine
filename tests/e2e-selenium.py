@@ -47,36 +47,14 @@ def run_selenium_demo():
         driver.get(base_url)
         time.sleep(1)
 
-        # 1. Handle Welcome Modal
-        print("\n--- Step 1: Initial Welcome Modal ---")
-        try:
-            welcome_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="btn-welcome-explore-own"]')))
-            hover_and_click('[data-testid="btn-welcome-explore-own"]', "Explore on My Own")
-        except Exception:
-            print("   (Welcome modal already closed or skipped)")
+        # 1. Test Interactive Inspection Mode Toggle
+        print("\n--- Step 1: Testing Interactive Tour Toggle ---")
+        hover_and_click('[data-testid="btn-header-tour-toggle"]', "Header Tour Toggle (Hover Mode ON)")
+        time.sleep(0.5)
+        hover_and_click('[data-testid="btn-header-tour-toggle"]', "Header Tour Toggle (Hover Mode OFF)")
 
-        # 2. Test Walkthrough Guide
-        print("\n--- Step 2: Testing Walkthrough Guide ---")
-        hover_and_click('[data-testid="btn-walkthrough-guide"]', "Header Walkthrough Guide Button")
-        wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-testid="tour-autopilot-panel"]')))
-        print("   🎉 Walkthrough Guide is active!")
-
-        # Pause Autopilot
-        hover_and_click('[data-testid="btn-tour-autoplay-toggle"]', "Pause Autopilot Timer")
-
-        # Step forward
-        hover_and_click('[data-testid="btn-tour-next"]', "Next Stop (Section 2)")
-        time.sleep(1)
-
-        hover_and_click('[data-testid="btn-tour-next"]', "Next Stop (Section 3)")
-        time.sleep(1)
-
-        # Close Walkthrough
-        hover_and_click('[data-testid="btn-tour-close"]', "Close Walkthrough Guide")
-        print("   ✅ Walkthrough Guide closed.")
-
-        # 3. Dispatch Studio
-        print("\n--- Step 3: Dispatch Studio ---")
+        # 2. Dispatch Studio
+        print("\n--- Step 2: Dispatch Studio ---")
         hover_and_click('[data-testid="nav-tab-dispatch"]', "Sidebar -> Dispatch Studio")
         hover_and_click('[data-testid="btn-tpl-payment"]', "Payment Template Preset")
         hover_and_click('[data-testid="btn-target-mock200"]', "Mock 200 OK Receiver Target")

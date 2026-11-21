@@ -17,7 +17,7 @@ import { useTour } from '../context/TourContext';
 import sounds from '../utils/soundEngine';
 import InteractiveHoverCard from './InteractiveHoverCard';
 
-export default function Sidebar({ activeTab, setActiveTab, onStartWalkthrough }) {
+export default function Sidebar({ activeTab, setActiveTab }) {
   const { isTourActive, toggleTour } = useTour();
 
   const menuItems = [

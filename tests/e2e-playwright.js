@@ -41,35 +41,14 @@ async function runAutomation() {
   }
 
   try {
-    // 1. Handle Welcome Modal
-    console.log('\n--- Step 1: Initial Welcome Modal ---');
-    const welcomeModal = page.locator('[data-testid="btn-welcome-explore-own"]');
-    if (await welcomeModal.isVisible()) {
-      await hoverAndClick('[data-testid="btn-welcome-explore-own"]', 'Explore on My Own');
-    }
+    // 1. Test Interactive Inspection Mode Toggle
+    console.log('\n--- Step 1: Testing Interactive Tour Toggle ---');
+    await hoverAndClick('[data-testid="btn-header-tour-toggle"]', 'Header Tour Toggle (Hover Mode ON)');
+    await page.waitForTimeout(500);
+    await hoverAndClick('[data-testid="btn-header-tour-toggle"]', 'Header Tour Toggle (Hover Mode OFF)');
 
-    // 2. Test Walkthrough Guide
-    console.log('\n--- Step 2: Testing Walkthrough Guide ---');
-    await hoverAndClick('[data-testid="btn-walkthrough-guide"]', 'Header Walkthrough Guide Button');
-    await page.waitForSelector('[data-testid="tour-autopilot-panel"]', { state: 'visible' });
-    console.log('   🎉 Walkthrough Guide is active!');
-    
-    // Pause Autopilot
-    await hoverAndClick('[data-testid="btn-tour-autoplay-toggle"]', 'Pause Autopilot Timer');
-    
-    // Step forward through the tour
-    await hoverAndClick('[data-testid="btn-tour-next"]', 'Next Stop (Section 2)');
-    await page.waitForTimeout(1000);
-    
-    await hoverAndClick('[data-testid="btn-tour-next"]', 'Next Stop (Section 3)');
-    await page.waitForTimeout(1000);
-
-    // Close Walkthrough Guide
-    await hoverAndClick('[data-testid="btn-tour-close"]', 'Close Walkthrough Guide');
-    console.log('   ✅ Walkthrough Guide closed cleanly.');
-
-    // 3. Navigate to Dispatch Studio
-    console.log('\n--- Step 3: Webhook Dispatch Studio ---');
+    // 2. Navigate to Dispatch Studio
+    console.log('\n--- Step 2: Webhook Dispatch Studio ---');
     await hoverAndClick('[data-testid="nav-tab-dispatch"]', 'Sidebar -> Dispatch Studio');
 
     // Select Payment Template

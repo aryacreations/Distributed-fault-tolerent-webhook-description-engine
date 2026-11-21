@@ -30,8 +30,7 @@ export default function Header({
   activeTab, 
   onRefresh, 
   isRefreshing, 
-  stats, 
-  onStartWalkthrough 
+  stats 
 }) {
   const { isTourActive, toggleTour } = useTour();
   const [isAudioMuted, setIsAudioMuted] = useState(sounds.isMuted);
@@ -80,21 +79,6 @@ export default function Header({
               <span>Start Interactive Tour</span>
             </>
           )}
-        </button>
-
-        {/* Step-by-Step Guided Walkthrough Button */}
-        <button
-          id="btn-walkthrough-guide"
-          data-testid="btn-walkthrough-guide"
-          onClick={() => {
-            sounds.playClick();
-            onStartWalkthrough();
-          }}
-          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition active:scale-95 cursor-pointer"
-          title="Open Step-by-Step Guided Walkthrough"
-        >
-          <Compass className="w-3.5 h-3.5 text-slate-500" />
-          <span>Walkthrough Guide</span>
         </button>
 
         {/* Global Sound Effects Toggle */}

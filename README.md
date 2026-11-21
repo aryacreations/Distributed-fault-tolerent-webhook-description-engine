@@ -244,7 +244,6 @@ Every interactive UI element across the dashboard is tagged with standardized `d
 | Target Component | `data-testid` Selector | Action |
 |:---|:---|:---|
 | **Navigation Tabs** | `nav-tab-overview`, `nav-tab-dispatch`, `nav-tab-simulator`, `nav-tab-deliveries`, `nav-tab-architecture` | Hover and click section tabs |
-| **Walkthrough Guide** | `btn-walkthrough-guide`, `btn-tour-autoplay-toggle`, `btn-tour-next`, `btn-tour-close` | Launch & control guided tour |
 | **Interactive Tour** | `btn-header-tour-toggle`, `btn-sidebar-tour` | Toggle hover inspection mode |
 | **Dispatch Form** | `input-destination-url`, `input-event-id`, `textarea-payload`, `btn-dispatch-submit` | Fill & submit 202 webhook |
 | **Payload Templates** | `btn-tpl-signup`, `btn-tpl-payment`, `btn-tpl-order`, `btn-tpl-subscription` | Click payload presets |
