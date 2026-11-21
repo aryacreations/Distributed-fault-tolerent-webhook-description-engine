@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { RefreshCw, Play, Volume2, VolumeX, Compass, Sparkles } from 'lucide-react';
+import { RefreshCw, Play, Pause, Volume2, VolumeX, Compass, Sparkles } from 'lucide-react';
+import { useTour } from '../context/TourContext';
 import sounds from '../utils/soundEngine';
 
 const TAB_TITLES = {
@@ -12,7 +13,7 @@ const TAB_TITLES = {
     subtitle: 'Submit event payloads with instant non-blocking 202 Accepted response',
   },
   simulator: {
-    title: 'Interview Test Lab & Scenarios',
+    title: 'Testing Lab & Scenarios',
     subtitle: 'Simulate flaky targets, exponential backoff, rate limits, and timeouts',
   },
   deliveries: {
@@ -21,7 +22,7 @@ const TAB_TITLES = {
   },
   architecture: {
     title: 'Distributed System Architecture',
-    subtitle: 'End-to-end design specifications, state machines, and interview cheat sheet',
+    subtitle: 'End-to-end design specifications, state machines, and system decisions',
   },
 };
 
@@ -30,9 +31,9 @@ export default function Header({
   onRefresh, 
   isRefreshing, 
   stats, 
-  onOpenExplainer, 
-  onStartTour 
+  onStartWalkthrough 
 }) {
+  const { isTourActive, toggleTour } = useTour();
   const [isAudioMuted, setIsAudioMuted] = useState(sounds.isMuted);
   const current = TAB_TITLES[activeTab] || TAB_TITLES.overview;
   const metrics = stats?.metrics;
@@ -55,29 +56,41 @@ export default function Header({
       </div>
 
       <div className="flex items-center space-x-2.5">
-        {/* Interactive Guided Spotlight Tour Button */}
+        {/* Interactive Tour Play / Pause Toggle Button */}
         <button
-          onClick={() => {
-            sounds.playClick();
-            onStartTour();
-          }}
-          className="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition active:scale-95"
-          title="Start Interactive Guided Walkthrough on Dashboard"
+          onClick={toggleTour}
+          className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm active:scale-95 ${
+            isTourActive
+              ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 ring-2 ring-emerald-500/20'
+              : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
+          }`}
+          title={isTourActive ? 'Click to Pause Tour & Hover Inspection' : 'Click to Activate Tour & Hover Inspection'}
         >
-          <Compass className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Interactive Tour</span>
+          {isTourActive ? (
+            <>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+              <Pause className="w-3.5 h-3.5 text-emerald-700 fill-current" />
+              <span>Tour Active (Hover On)</span>
+            </>
+          ) : (
+            <>
+              <Play className="w-3.5 h-3.5 text-emerald-600 fill-current" />
+              <span>Start Interactive Tour</span>
+            </>
+          )}
         </button>
 
-        {/* Watch Animated Video Explainer Button */}
+        {/* Step-by-Step Guided Walkthrough Button */}
         <button
           onClick={() => {
             sounds.playClick();
-            onOpenExplainer();
+            onStartWalkthrough();
           }}
-          className="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 shadow-md shadow-emerald-500/20 transition active:scale-95"
+          className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition active:scale-95"
+          title="Open Step-by-Step Guided Walkthrough"
         >
-          <Play className="w-3.5 h-3.5 fill-current" />
-          <span>Video Explainer</span>
+          <Compass className="w-3.5 h-3.5 text-slate-500" />
+          <span>Walkthrough Guide</span>
         </button>
 
         {/* Global Sound Effects Toggle */}

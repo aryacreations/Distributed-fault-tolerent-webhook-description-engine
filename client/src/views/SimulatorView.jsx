@@ -102,7 +102,7 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       icon: CheckCircle2,
       url: (base) => `${base}?status=200`,
       underTheHood: 'HTTP 200 -> WebhookJob status SUCCESS -> DeliveryAttempt logged with latency.',
-      tip: 'Tests the fundamental happy path where the target responds immediately.',
+      benefit: 'Tests standard successful delivery without retry delays.',
     },
     {
       id: 'recovering',
@@ -116,7 +116,7 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       icon: Zap,
       url: (base, evtId) => `${base}?failUntil=2&code=500&key=${evtId}`,
       underTheHood: 'Worker catches 500 error -> throws -> BullMQ schedules delayed execution in Redis ZSET.',
-      tip: 'The star demo scenario! Watch the 2s and 4s countdown timers live on the Delivery Logs table.',
+      benefit: 'Demonstrates automatic recovery from temporary partner server downtime without manual intervention.',
     },
     {
       id: 'dlq',
@@ -130,7 +130,7 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       icon: AlertTriangle,
       url: (base) => `${base}?status=500`,
       underTheHood: 'After 3 retries exhausted, job transitions to FAILED state and is moved to DLQ.',
-      tip: 'Explain that dead-lettering prevents poison-pill jobs from clogging worker threads forever.',
+      benefit: 'Prevents broken endpoints from permanently clogging worker processing queues.',
     },
     {
       id: 'rate_limited',
@@ -144,7 +144,7 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       icon: ShieldAlert,
       url: (base) => `${base}?status=429`,
       underTheHood: 'dispatcherService identifies HTTP 429 as isTransient = true, triggering exponential backoff.',
-      tip: 'Highlights intelligent error classification: unlike 400 or 404, 429 is retried safely.',
+      benefit: 'Safely respects destination partner rate limit ceilings by backing off gracefully.',
     },
     {
       id: 'timeout',
@@ -158,7 +158,7 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       icon: Timer,
       url: (base) => `${base}?delay=6500`,
       underTheHood: 'Axios timeout: 5000ms aborts socket to prevent zombie thread leaks.',
-      tip: 'Essential in microservices to prevent slow third-party servers from hanging our workers.',
+      benefit: 'Protects system resources from hanging indefinitely on non-responsive third-party endpoints.',
     },
     {
       id: 'rapid_fire',
@@ -172,7 +172,7 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       icon: Layers,
       url: (base) => `${base}?status=200`,
       underTheHood: 'Redis sliding-window checkDomainRateLimit(domain) caps to 5 req/s with atomic Lua/pipeline.',
-      tip: 'Demonstrates multi-tenant fairness and prevents single-domain thundering-herd spikes.',
+      benefit: 'Eliminates thundering-herd problems by automatically smoothing burst traffic.',
     },
   ];
 
@@ -183,7 +183,7 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
         <div>
           <div className="flex items-center space-x-2 text-amber-700 font-bold text-xs uppercase tracking-wider mb-1">
             <Zap className="w-4 h-4" />
-            <span>Interactive Interview Simulator</span>
+            <span>Interactive Simulator</span>
           </div>
           <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
             Failure Mode & Resilience Testing Suite
@@ -232,7 +232,7 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
               category={sc.category}
               description={sc.desc}
               underTheHood={sc.underTheHood}
-              interviewTip={sc.tip}
+              clientBenefit={sc.benefit}
               position="top"
               className="w-full"
             >

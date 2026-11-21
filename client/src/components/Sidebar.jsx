@@ -10,12 +10,16 @@ import {
   Database, 
   Radio, 
   Play,
+  Pause,
   Compass
 } from 'lucide-react';
+import { useTour } from '../context/TourContext';
 import sounds from '../utils/soundEngine';
 import InteractiveHoverCard from './InteractiveHoverCard';
 
-export default function Sidebar({ activeTab, setActiveTab, onOpenExplainer, onStartTour }) {
+export default function Sidebar({ activeTab, setActiveTab, onStartWalkthrough }) {
+  const { isTourActive, toggleTour } = useTour();
+
   const menuItems = [
     {
       id: 'overview',
@@ -23,7 +27,7 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenExplainer, onSt
       desc: 'Real-time metrics & health',
       icon: LayoutDashboard,
       badge: null,
-      tip: 'High-level dashboard overview showing throughput, active pipeline, and overall delivery rate.',
+      clientBenefit: 'Provides an executive summary of throughput, success rates, and queue pipeline health.',
     },
     {
       id: 'dispatch',
@@ -31,15 +35,15 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenExplainer, onSt
       desc: 'Ingest & test webhooks',
       icon: Send,
       badge: '202 Fast',
-      tip: 'The core non-blocking ingestion entry point returning HTTP 202 in under 30 milliseconds.',
+      clientBenefit: 'Submit custom events and observe sub-30ms non-blocking ingestion.',
     },
     {
       id: 'simulator',
-      label: 'Test Lab & Scenarios',
+      label: 'Testing Lab & Scenarios',
       desc: 'Backoff, DLQ & timeouts',
       icon: Zap,
       badge: 'Interactive',
-      tip: '6 one-click edge-case simulations specifically built for live interview demos.',
+      clientBenefit: 'Simulate flaky customer endpoints, exponential retries, and rate limits in a controlled environment.',
     },
     {
       id: 'deliveries',
@@ -47,7 +51,7 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenExplainer, onSt
       desc: 'History & attempt timeline',
       icon: History,
       badge: null,
-      tip: 'MongoDB-backed immutable audit trail with step-by-step latency and status inspect modal.',
+      clientBenefit: 'Inspect every single delivery attempt with exact latency, HTTP status codes, and error bodies.',
     },
     {
       id: 'architecture',
@@ -55,7 +59,7 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenExplainer, onSt
       desc: 'Specs, diagrams & trade-offs',
       icon: Network,
       badge: 'Docs',
-      tip: 'Full system blueprint, failure matrix, and architectural decisions defense table.',
+      clientBenefit: 'Review the technical specifications, failure matrices, and engineering trade-offs.',
     },
   ];
 
@@ -90,9 +94,9 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenExplainer, onSt
               <InteractiveHoverCard
                 key={item.id}
                 title={item.label}
-                category="Navigation"
+                category="Section"
                 description={item.desc}
-                interviewTip={item.tip}
+                clientBenefit={item.clientBenefit}
                 position="right"
                 className="w-full"
               >
@@ -134,33 +138,44 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenExplainer, onSt
         </nav>
       </div>
 
-      {/* Footer Info & Interactive Tours */}
+      {/* Footer Controls & Infrastructure Status */}
       <div className="space-y-3.5 pt-4 border-t border-slate-200/70">
-        {/* Interactive Guided Tour Card */}
+        {/* Interactive Tour Play/Pause Card */}
         <button
-          onClick={() => {
-            sounds.playClick();
-            onStartTour();
-          }}
-          className="w-full p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 text-left shadow-sm transition active:scale-95 group"
+          onClick={toggleTour}
+          className={`w-full p-3.5 rounded-2xl text-left transition-all shadow-sm active:scale-95 border ${
+            isTourActive
+              ? 'bg-emerald-50/90 border-emerald-300 ring-1 ring-emerald-500/20'
+              : 'bg-white hover:bg-slate-50 border-slate-200'
+          }`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">
-              Interactive Guide
+          <div className="flex items-center justify-between mb-1">
+            <span className={`text-[10px] font-bold uppercase tracking-wider ${
+              isTourActive ? 'text-emerald-800' : 'text-slate-500'
+            }`}>
+              Interactive Inspection Mode
             </span>
-            <Compass className="w-3.5 h-3.5 text-emerald-600 group-hover:rotate-45 transition duration-300" />
+            {isTourActive ? (
+              <Pause className="w-3.5 h-3.5 text-emerald-700 fill-current" />
+            ) : (
+              <Play className="w-3.5 h-3.5 text-slate-500 fill-current" />
+            )}
           </div>
-          <p className="text-xs font-extrabold mt-0.5">Start Interactive Tour</p>
-          <p className="text-[10px] text-slate-500">Live spotlight on dashboard</p>
+          <p className="text-xs font-extrabold text-slate-900">
+            {isTourActive ? 'Tour Active (Hover On)' : 'Start Interactive Tour'}
+          </p>
+          <p className="text-[10px] text-slate-500 mt-0.5">
+            {isTourActive ? 'Hover any element to see how it works' : 'Click to enable hover explanations'}
+          </p>
         </button>
 
-        {/* Infrastructure Status Indicator */}
+        {/* Infrastructure Status */}
         <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/60 space-y-2">
           <InteractiveHoverCard
-            title="MongoDB Atlas Cluster"
-            category="Database"
-            description="Stores WebhookJobs and DeliveryAttempts with polymorphic BSON schemas."
-            interviewTip="Connected via Mongoose with connection pooling and serverSelectionTimeout."
+            title="MongoDB Atlas Database"
+            category="Persistence"
+            description="Stores webhook jobs and immutable delivery attempts."
+            clientBenefit="Guarantees auditability and compliance for all dispatched events."
             position="right"
             className="w-full"
           >
@@ -176,8 +191,8 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenExplainer, onSt
           <InteractiveHoverCard
             title="Upstash Redis Cluster"
             category="Message Broker"
-            description="Powers BullMQ with atomic Lua scripts and delayed sorted sets for backoff."
-            interviewTip="Runs over TLS on port 6379 with maxRetriesPerRequest set to null."
+            description="In-memory Redis instance powering BullMQ with delayed sorted sets."
+            clientBenefit="Enables microsecond job queueing and zero caller blocking."
             position="right"
             className="w-full"
           >
@@ -192,9 +207,9 @@ export default function Sidebar({ activeTab, setActiveTab, onOpenExplainer, onSt
 
           <InteractiveHoverCard
             title="Sliding-Window Rate Limiter"
-            category="Protection"
+            category="Rate Limiter"
             description="Enforces maximum 5 requests per second per target destination domain."
-            interviewTip="Prevents accidental DDoS against customer servers when bulk events occur."
+            clientBenefit="Ensures client servers are never flooded by sudden traffic spikes."
             position="right"
             className="w-full"
           >

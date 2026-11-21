@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { TourProvider } from './context/TourContext';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import OverviewView from './views/OverviewView';
@@ -7,20 +8,18 @@ import SimulatorView from './views/SimulatorView';
 import LogsView from './views/LogsView';
 import ArchitectureView from './views/ArchitectureView';
 import JobDetailModal from './components/JobDetailModal';
-import AnimatedExplainerModal from './components/AnimatedExplainerModal';
 import GuidedTourModal from './components/GuidedTourModal';
 import { fetchJobs, fetchStats } from './services/api';
 import sounds from './utils/soundEngine';
 
-export default function App() {
+function DashboardApp() {
   const [activeTab, setActiveTab] = useState('overview');
   const [jobs, setJobs] = useState([]);
   const [stats, setStats] = useState(null);
   const [isLoadingJobs, setIsLoadingJobs] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState(null);
-  const [showExplainer, setShowExplainer] = useState(false);
-  const [showTour, setShowTour] = useState(false);
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
   const [currentStatus, setCurrentStatus] = useState('');
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
 
@@ -79,20 +78,18 @@ export default function App() {
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenExplainer={() => setShowExplainer(true)}
-        onStartTour={() => setShowTour(true)}
+        onStartWalkthrough={() => setShowWalkthrough(true)}
       />
 
       {/* 2. Main Fluid Work Area */}
       <div className="flex-1 min-w-0 flex flex-col min-h-screen overflow-x-hidden">
-        {/* Top Header */}
+        {/* Top Header with Play/Pause Interactive Tour Switch */}
         <Header
           activeTab={activeTab}
           onRefresh={() => loadData(true)}
           isRefreshing={isRefreshing}
           stats={stats}
-          onOpenExplainer={() => setShowExplainer(true)}
-          onStartTour={() => setShowTour(true)}
+          onStartWalkthrough={() => setShowWalkthrough(true)}
         />
 
         {/* Dynamic Section Dashboard View */}
@@ -151,18 +148,20 @@ export default function App() {
         />
       )}
 
-      {/* 4. Animated Explainer Video Modal */}
-      <AnimatedExplainerModal
-        isOpen={showExplainer}
-        onClose={() => setShowExplainer(false)}
-      />
-
-      {/* 5. Interactive Guided Spotlight Tour */}
+      {/* 4. Interactive Guided Walkthrough Modal */}
       <GuidedTourModal
-        isOpen={showTour}
-        onClose={() => setShowTour(false)}
+        isOpen={showWalkthrough}
+        onClose={() => setShowWalkthrough(false)}
         onNavigateTab={(tab) => setActiveTab(tab)}
       />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <TourProvider>
+      <DashboardApp />
+    </TourProvider>
   );
 }

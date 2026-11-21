@@ -1,25 +1,29 @@
 import React, { useState } from 'react';
+import { useTour } from '../context/TourContext';
 import sounds from '../utils/soundEngine';
-import { Info, Sparkles, Code2, MessageSquare, Zap } from 'lucide-react';
+import { Sparkles, Code2, CheckCircle2, HelpCircle } from 'lucide-react';
 
 /**
- * Interactive Hover Inspector Wrapper
- * Plays realistic UI sound on hover and surfaces an architectural explanation
- * with specific interview talking points for every button, card, and section.
+ * Realistic Light Glassmorphic Hover Inspector
+ * Only active when the user explicitly turns ON the Interactive Tour.
+ * Formatted for real clients and users to understand the system and dashboard.
  */
 export default function InteractiveHoverCard({
   title,
-  category = 'Architecture',
+  category = 'Feature',
   description,
   underTheHood,
-  interviewTip,
+  clientBenefit,
   position = 'top',
   children,
   className = '',
 }) {
+  const { isTourActive } = useTour();
   const [isHovered, setIsHovered] = useState(false);
 
+  // If Tour is paused / OFF, do not show popups or play sounds
   const handleMouseEnter = () => {
+    if (!isTourActive) return;
     sounds.playHover();
     setIsHovered(true);
   };
@@ -28,12 +32,12 @@ export default function InteractiveHoverCard({
     setIsHovered(false);
   };
 
-  // Position styles for the floating popover
+  // Position styles for floating glass popover
   const positionClasses = {
-    top: 'bottom-full left-1/2 -translate-x-1/2 mb-2.5',
-    bottom: 'top-full left-1/2 -translate-x-1/2 mt-2.5',
-    left: 'right-full top-1/2 -translate-y-1/2 mr-2.5',
-    right: 'left-full top-1/2 -translate-y-1/2 ml-2.5',
+    top: 'bottom-full left-1/2 -translate-x-1/2 mb-3',
+    bottom: 'top-full left-1/2 -translate-x-1/2 mt-3',
+    left: 'right-full top-1/2 -translate-y-1/2 mr-3',
+    right: 'left-full top-1/2 -translate-y-1/2 ml-3',
   };
 
   return (
@@ -42,56 +46,66 @@ export default function InteractiveHoverCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
+      {/* If tour is active, show subtle glowing hint on element */}
+      {isTourActive && (
+        <span className="absolute -top-1 -right-1 flex h-2 w-2 z-10 pointer-events-none">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+        </span>
+      )}
+
       {children}
 
-      {/* Interactive Floating Hover Popover */}
-      {isHovered && title && (
+      {/* Realistic Light Glassmorphic Popover (Only visible when Tour is ON) */}
+      {isTourActive && isHovered && title && (
         <div
-          className={`absolute z-50 w-72 sm:w-80 pointer-events-none transition-all duration-200 animate-fadeIn ${
+          className={`absolute z-50 w-72 sm:w-80 pointer-events-none transition-all duration-200 ${
             positionClasses[position] || positionClasses.top
           }`}
         >
-          <div className="bg-slate-900/95 backdrop-blur-xl border border-emerald-500/40 rounded-2xl p-3.5 shadow-2xl text-left text-xs space-y-2 text-slate-200 ring-1 ring-emerald-500/20">
+          <div className="bg-white/90 backdrop-blur-2xl border border-white/95 rounded-2xl p-4 shadow-2xl shadow-slate-400/25 text-left text-xs space-y-2.5 text-slate-800 ring-1 ring-slate-900/5 animate-fadeIn">
             {/* Header */}
-            <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
-              <div className="flex items-center space-x-1.5 min-w-0">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span className="font-extrabold text-white text-xs truncate">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div className="flex items-center space-x-2 min-w-0">
+                <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/60 shrink-0">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </div>
+                <span className="font-extrabold text-slate-900 text-xs truncate">
                   {title}
                 </span>
               </div>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-500/30 shrink-0">
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-mono border border-slate-200 shrink-0">
                 {category}
               </span>
             </div>
 
-            {/* Description */}
+            {/* Description / Purpose */}
             {description && (
-              <p className="text-[11px] text-slate-300 leading-relaxed font-sans">
+              <p className="text-[11px] text-slate-600 leading-relaxed font-sans">
                 {description}
               </p>
             )}
 
             {/* Under The Hood Details */}
             {underTheHood && (
-              <div className="p-2 rounded-xl bg-slate-950/80 border border-slate-800 text-[10px] space-y-0.5 font-mono">
-                <div className="flex items-center gap-1 text-slate-400 font-bold uppercase tracking-wider text-[9px]">
-                  <Code2 className="w-3 h-3 text-cyan-400" />
-                  <span>Under The Hood:</span>
+              <div className="p-2.5 rounded-xl bg-slate-50/90 border border-slate-200/70 text-[10px] space-y-1">
+                <div className="flex items-center gap-1 text-slate-500 font-bold uppercase tracking-wider text-[9px]">
+                  <Code2 className="w-3 h-3 text-emerald-600" />
+                  <span>How It Works:</span>
                 </div>
-                <p className="text-cyan-300 leading-snug">{underTheHood}</p>
+                <p className="text-slate-700 leading-snug font-mono text-[10px]">{underTheHood}</p>
               </div>
             )}
 
-            {/* Interview Talking Point */}
-            {interviewTip && (
-              <div className="p-2 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-[10px] space-y-0.5">
-                <div className="flex items-center gap-1 text-emerald-400 font-bold uppercase tracking-wider text-[9px]">
-                  <MessageSquare className="w-3 h-3 text-emerald-400" />
-                  <span>Interview Tip:</span>
+            {/* Client Value / User Benefit */}
+            {clientBenefit && (
+              <div className="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200/70 text-[10px] space-y-1">
+                <div className="flex items-center gap-1 text-emerald-700 font-bold uppercase tracking-wider text-[9px]">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  <span>Client Benefit:</span>
                 </div>
-                <p className="text-emerald-200 leading-snug italic font-sans">
-                  "{interviewTip}"
+                <p className="text-emerald-950 leading-snug font-sans text-[11px]">
+                  {clientBenefit}
                 </p>
               </div>
             )}

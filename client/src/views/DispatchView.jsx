@@ -128,11 +128,11 @@ export default function DispatchView({ onJobCreated }) {
             {Object.keys(SAMPLE_PAYLOADS).map((tpl) => (
               <InteractiveHoverCard
                 key={tpl}
-                title={`${tpl.toUpperCase()} Webhook Template`}
+                title={`${tpl.toUpperCase()} Template`}
                 category="Payload Presets"
                 description={`Pre-populated sample payload modeling an asynchronous ${tpl} event.`}
                 underTheHood="JSON schema parsed and validated by Zod at ingestion."
-                interviewTip="Shows that our engine handles polymorphic arbitrary JSON structures without rigid schema locks."
+                clientBenefit="Allows you to rapidly test various polymorphic event models."
                 position="top"
               >
                 <button
@@ -160,7 +160,7 @@ export default function DispatchView({ onJobCreated }) {
                   title="Mock 200 OK Receiver"
                   category="Healthy Endpoint"
                   description="Routes to the built-in mock endpoint configured for immediate 200 OK success."
-                  interviewTip="Use this to test the happy path without third-party services."
+                  clientBenefit="Use this to test the happy path without relying on external third-party services."
                   position="bottom"
                 >
                   <button
@@ -176,7 +176,7 @@ export default function DispatchView({ onJobCreated }) {
                   title="Mock Flaky 500 Receiver"
                   category="Self-Healing Target"
                   description="Fails the first 2 attempts with HTTP 500, then succeeds on attempt 3."
-                  interviewTip="The perfect demo button to show exponential backoff retries live!"
+                  clientBenefit="Validates that the system recovers automatically from temporary outages."
                   position="bottom"
                 >
                   <button
@@ -215,7 +215,7 @@ export default function DispatchView({ onJobCreated }) {
                 category="Duplicate Defense"
                 description="Client-supplied unique identifier to guarantee at-most-once delivery."
                 underTheHood="Indexed unique in MongoDB WebhookJob collection. Duplicates return existing jobId."
-                interviewTip="Explain how idempotency prevents duplicate billing/emails if network blips cause client retries."
+                clientBenefit="Protects against duplicate charges or actions if network glitches cause repeated client calls."
                 position="top"
               >
                 <label className="text-xs font-bold text-slate-700 cursor-help flex items-center gap-1">
@@ -263,7 +263,8 @@ export default function DispatchView({ onJobCreated }) {
             title="Instant 202 Ingestion Trigger"
             category="Non-Blocking API"
             description="Queues the job in Redis BullMQ and returns HTTP 202 in under 30ms."
-            interviewTip="Highlight that this call returns immediately without waiting for the destination server."
+            underTheHood="Pushes directly to Redis memory queue without waiting for external target HTTP response."
+            clientBenefit="Guarantees fast API response times for your upstream application."
             position="top"
             className="w-full"
           >

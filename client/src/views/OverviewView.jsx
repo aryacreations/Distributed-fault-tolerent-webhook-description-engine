@@ -38,7 +38,7 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
       category: 'Ingestion Layer',
       desc: 'Count of all accepted webhook events received via POST /api/webhooks/dispatch.',
       underTheHood: 'Stored in MongoDB webhook_jobs with status: QUEUED and pushed to BullMQ.',
-      tip: 'The ingestion API returns 202 Accepted in under 30ms without waiting for downstream HTTP calls.',
+      benefit: 'Guarantees the caller gets an instant 202 Accepted response without waiting for external delivery.',
     },
     {
       title: 'Delivered (2xx)',
@@ -47,10 +47,10 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
       icon: CheckCircle2,
       color: 'text-emerald-600 bg-emerald-50 border-emerald-200/60',
       badge: 'Delivered',
-      category: 'Success State',
+      category: 'Delivery State',
       desc: 'Webhooks that received an HTTP 2xx acknowledgment from the target destination.',
       underTheHood: 'Marked SUCCESS in MongoDB with completedAt timestamp; stored in DeliveryAttempt.',
-      tip: 'We treat HTTP 200 through 299 as definitive delivery acknowledgment and close the job.',
+      benefit: 'Confirms that the downstream destination has successfully received and acknowledged your event.',
     },
     {
       title: 'Retrying (In Backoff)',
@@ -62,7 +62,7 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
       category: 'Fault Tolerance',
       desc: 'Active jobs waiting in Redis delayed set before their next backoff attempt.',
       underTheHood: 'Redis Sorted Sets (ZSET) store delayed jobs with timestamp score. O(log N) insertion.',
-      tip: 'Tell the interviewer that BullMQ delayed sets eliminate wasteful database polling.',
+      benefit: 'Prevents target server crashes by spacing out retries exponentially (2s, 4s, 8s).',
     },
     {
       title: 'Dead-Letter (DLQ)',
@@ -74,7 +74,7 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
       category: 'Dead Letter Queue',
       desc: 'Jobs that permanently failed after 3 exponential retries or received non-retryable 4xx errors.',
       underTheHood: 'Marked FAILED in MongoDB with lastError. No further worker attempts are scheduled.',
-      tip: 'Permanent client errors (400, 401, 404) fail fast without retrying to save bandwidth.',
+      benefit: 'Isolates poison-pill jobs so they do not block healthy traffic in the pipeline.',
     },
     {
       title: 'Avg Downstream Latency',
@@ -86,7 +86,7 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
       category: 'Telemetry',
       desc: 'Average roundtrip latency across all external webhook dispatches.',
       underTheHood: 'Calculated from the durationMs column of delivery_attempts collection in MongoDB.',
-      tip: 'Even when this latency spikes to 5 seconds, our ingestion API remains under 30 milliseconds.',
+      benefit: 'Monitors the health and responsiveness of external customer endpoints.',
     },
     {
       title: 'Queue Pipeline',
@@ -98,7 +98,7 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
       category: 'Broker Queue',
       desc: 'Total active and waiting jobs in Redis memory buffer awaiting worker pickup.',
       underTheHood: 'Managed in-memory by Upstash Redis with TLS. Worker concurrency = 5 jobs.',
-      tip: 'Redis acts as a shock absorber during traffic spikes, protecting downstream services.',
+      benefit: 'Buffers traffic spikes smoothly so your application never drops events.',
     },
   ];
 
@@ -117,7 +117,7 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
               category={card.category}
               description={card.desc}
               underTheHood={card.underTheHood}
-              interviewTip={card.tip}
+              clientBenefit={card.benefit}
               position="bottom"
               className="w-full"
             >
@@ -154,7 +154,7 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
           category="Ingestion"
           description="Formulate custom payloads and test sub-30ms 202 Accepted responses."
           underTheHood="Express Controller -> Zod Validation -> MongoDB WebhookJob -> BullMQ Queue."
-          interviewTip="Show the interviewer how fast the 202 response returns regardless of downstream latency."
+          clientBenefit="Decouples your core API from external network latency."
           position="top"
           className="w-full"
         >
@@ -185,11 +185,11 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
         </InteractiveHoverCard>
 
         <InteractiveHoverCard
-          title="Interview Testing Lab"
+          title="Testing Lab"
           category="Fault Tolerance"
           description="Ready-made edge cases for exponential backoff, rate limits, and timeouts."
           underTheHood="Built-in /api/mock-receiver with configurable failUntil, delay, and HTTP status params."
-          interviewTip="This allows you to demonstrate real-world failure recovery live during interviews."
+          clientBenefit="Allows safe pre-production verification of failure modes without third-party tools."
           position="top"
           className="w-full"
         >
@@ -197,7 +197,7 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
             <div>
               <div className="flex items-center space-x-2 text-amber-700 font-bold text-sm mb-1">
                 <Zap className="w-4 h-4" />
-                <span>Interview Test Lab</span>
+                <span>Testing Lab</span>
               </div>
               <h3 className="text-lg font-extrabold text-slate-900">
                 Simulate Failure Modes & Retries
@@ -213,7 +213,7 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
               }}
               className="mt-5 w-fit flex items-center space-x-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold shadow-md shadow-amber-600/20 transition active:scale-95"
             >
-              <span>Open Test Lab</span>
+              <span>Open Testing Lab</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -228,7 +228,7 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
               Recent Webhook Activity
             </h3>
             <p className="text-xs text-slate-500">
-              Latest delivery stream across all target domains (Hover over any row for insights)
+              Latest delivery stream across all target domains
             </p>
           </div>
           <button
