@@ -11,7 +11,7 @@ import {
   Layers,
   ArrowRight
 } from 'lucide-react';
-import { dispatchWebhook, resetMockReceiver } from '../services/api';
+import { dispatchWebhook, resetMockReceiver, BACKEND_URL } from '../services/api';
 import InteractiveHoverCard from '../components/InteractiveHoverCard';
 import sounds from '../utils/soundEngine';
 
@@ -21,9 +21,7 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
   const [notice, setNotice] = useState(null);
 
   const getBaseMockUrl = () => {
-    return window.location.origin.includes('localhost')
-      ? 'http://localhost:5000/api/mock-receiver'
-      : `${window.location.origin}/api/mock-receiver`;
+    return `${BACKEND_URL}/api/mock-receiver`;
   };
 
   const handleRunScenario = async (scenario) => {

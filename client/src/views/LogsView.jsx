@@ -247,7 +247,7 @@ export default function LogsView({
                         sounds.playClick();
                         onSelectJob(job.jobId);
                       }}
-                      className="hover:bg-slate-50/90 cursor-pointer transition group"
+                      className="glass-table-row cursor-pointer transition group"
                     >
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span
@@ -267,9 +267,19 @@ export default function LogsView({
                       </td>
 
                       <td className="py-3.5 px-4 whitespace-nowrap">
-                        <span className="bg-slate-100 px-2 py-0.5 rounded-md text-[11px] font-bold text-slate-700 border border-slate-200/60">
-                          {job.domain}
-                        </span>
+                        {job.domain === 'localhost' ? (
+                          <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold" title="Dispatched to local dev receiver">
+                            localhost <span className="text-[9px] text-amber-500 font-normal">(dev)</span>
+                          </span>
+                        ) : job.domain && job.domain.includes('onrender.com') ? (
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold" title="Dispatched to live engine mock receiver">
+                            mock-receiver <span className="text-[9px] text-emerald-500 font-normal">(cloud)</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold">
+                            {job.domain}
+                          </span>
+                        )}
                       </td>
 
                       <td className="py-3.5 px-4 whitespace-nowrap text-slate-800">

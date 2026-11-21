@@ -74,7 +74,7 @@ export default function InteractiveHoverCard({
             positionClasses[position] || positionClasses.top
           }`}
         >
-          <div className="bg-white/92 backdrop-blur-2xl border border-white/95 rounded-2xl p-3.5 shadow-xl shadow-slate-300/30 text-left text-xs space-y-2 text-slate-800 ring-1 ring-slate-900/5 animate-fadeIn">
+          <div className="bg-white/80 backdrop-blur-2xl border border-white/90 rounded-2xl p-3.5 shadow-2xl shadow-slate-300/40 text-left text-xs space-y-2 text-slate-800 ring-1 ring-slate-900/5 animate-fadeIn">
             {/* Header */}
             <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
               <div className="flex items-center space-x-1.5 min-w-0">

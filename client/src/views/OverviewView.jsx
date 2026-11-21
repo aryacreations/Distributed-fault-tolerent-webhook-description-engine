@@ -282,7 +282,7 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
                       sounds.playClick();
                       onSelectJob(job.jobId);
                     }}
-                    className="hover:bg-slate-50/80 cursor-pointer transition group"
+                    className="glass-table-row cursor-pointer transition group"
                   >
                     <td className="py-3 px-3">
                       <span
@@ -306,9 +306,19 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
                       {job.eventId}
                     </td>
                     <td className="py-3 px-3 text-slate-600">
-                      <span className="bg-slate-100 px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-700">
-                        {job.domain}
-                      </span>
+                      {job.domain === 'localhost' ? (
+                        <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold" title="Dispatched to local dev receiver">
+                          localhost <span className="text-[9px] text-amber-500 font-normal">(dev)</span>
+                        </span>
+                      ) : job.domain && job.domain.includes('onrender.com') ? (
+                        <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold" title="Dispatched to live engine mock receiver">
+                          mock-receiver <span className="text-[9px] text-emerald-500 font-normal">(cloud)</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold">
+                          {job.domain}
+                        </span>
+                      )}
                     </td>
                     <td className="py-3 px-3 text-slate-700 font-semibold">
                       {job.currentAttempt} / {job.maxRetries}

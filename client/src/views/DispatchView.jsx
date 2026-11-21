@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Send, Zap, Check, AlertCircle, Copy, Sparkles, Clock, Globe } from 'lucide-react';
-import { dispatchWebhook } from '../services/api';
+import { dispatchWebhook, BACKEND_URL } from '../services/api';
 import InteractiveHoverCard from '../components/InteractiveHoverCard';
 import sounds from '../utils/soundEngine';
 
@@ -34,7 +34,7 @@ const SAMPLE_PAYLOADS = {
 };
 
 export default function DispatchView({ onJobCreated }) {
-  const [destinationUrl, setDestinationUrl] = useState('http://localhost:5000/api/mock-receiver?status=200');
+  const [destinationUrl, setDestinationUrl] = useState(`${BACKEND_URL}/api/mock-receiver?status=200`);
   const [eventId, setEventId] = useState('evt_' + Date.now());
   const [payloadText, setPayloadText] = useState(JSON.stringify(SAMPLE_PAYLOADS.signup, null, 2));
   const [isLoading, setIsLoading] = useState(false);
@@ -50,11 +50,13 @@ export default function DispatchView({ onJobCreated }) {
   const handleSetTarget = (targetType) => {
     sounds.playClick();
     if (targetType === 'mock200') {
-      setDestinationUrl('http://localhost:5000/api/mock-receiver?status=200');
+      setDestinationUrl(`${BACKEND_URL}/api/mock-receiver?status=200`);
     } else if (targetType === 'mockFlaky') {
-      setDestinationUrl(`http://localhost:5000/api/mock-receiver?failUntil=2&code=500&key=${eventId}`);
+      setDestinationUrl(`${BACKEND_URL}/api/mock-receiver?failUntil=2&code=500&key=${eventId}`);
     } else if (targetType === 'httpbin') {
       setDestinationUrl('https://httpbin.org/post');
+    } else if (targetType === 'stripe') {
+      setDestinationUrl('https://api.stripe.com/v1/webhook_endpoints');
     }
   };
 
@@ -202,6 +204,16 @@ export default function DispatchView({ onJobCreated }) {
                   className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition cursor-pointer"
                 >
                   httpbin.org
+                </button>
+
+                <button
+                  id="btn-target-stripe"
+                  data-testid="btn-target-stripe"
+                  type="button"
+                  onClick={() => handleSetTarget('stripe')}
+                  className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition cursor-pointer"
+                >
+                  stripe.com
                 </button>
               </div>
             </div>
