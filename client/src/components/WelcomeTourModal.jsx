@@ -27,11 +27,13 @@ export default function WelcomeTourModal({ isOpen, onStartTour, onClose }) {
           </div>
 
           <button
+            id="btn-welcome-close"
+            data-testid="btn-welcome-close"
             onClick={() => {
               sounds.playClick();
               onClose();
             }}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -61,22 +63,26 @@ export default function WelcomeTourModal({ isOpen, onStartTour, onClose }) {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
           <button
+            id="btn-welcome-start-tour"
+            data-testid="btn-welcome-start-tour"
             onClick={() => {
               sounds.playSuccess();
               onStartTour();
             }}
-            className="w-full sm:w-auto flex-1 flex items-center justify-center space-x-2 py-3 px-5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/25 transition active:scale-95"
+            className="w-full sm:w-auto flex-1 flex items-center justify-center space-x-2 py-3 px-5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/25 transition active:scale-95 cursor-pointer"
           >
             <Play className="w-4 h-4 fill-current" />
             <span>Start Virtual Tour (Autopilot)</span>
           </button>
 
           <button
+            id="btn-welcome-explore-own"
+            data-testid="btn-welcome-explore-own"
             onClick={() => {
               sounds.playClick();
               onClose();
             }}
-            className="w-full sm:w-auto py-3 px-4 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
+            className="w-full sm:w-auto py-3 px-4 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
           >
             Explore on My Own
           </button>

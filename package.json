@@ -10,7 +10,9 @@
     "server": "cd server && npm run dev",
     "client": "cd client && npm run dev",
     "start": "cd server && npm start",
-    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
+    "test:playwright": "node tests/e2e-playwright.js",
+    "test:selenium": "python tests/e2e-selenium.py"
   },
   "keywords": [
     "webhook",

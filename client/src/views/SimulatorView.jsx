@@ -177,7 +177,7 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
   ];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto" data-tour-target="simulator-scenarios">
       {/* Top Banner */}
       <div className="glass-card rounded-2xl p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-4 border-l-amber-500">
         <div>
@@ -194,8 +194,10 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
         </div>
 
         <button
+          id="btn-reset-counters"
+          data-testid="btn-reset-counters"
           onClick={handleResetCounters}
-          className="flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 shadow-sm transition active:scale-95 shrink-0"
+          className="flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 shadow-sm transition active:scale-95 shrink-0 cursor-pointer"
         >
           <RotateCcw className="w-3.5 h-3.5 text-slate-600" />
           <span>Reset Simulation Counters</span>
@@ -203,17 +205,23 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       </div>
 
       {notice && (
-        <div className="glass-card rounded-2xl p-4 border border-emerald-300 bg-emerald-50/80 flex items-center justify-between gap-3 text-xs text-emerald-900 font-medium animate-fadeIn">
+        <div 
+          id="simulator-notice"
+          data-testid="simulator-notice"
+          className="glass-card rounded-2xl p-4 border border-emerald-300 bg-emerald-50/80 flex items-center justify-between gap-3 text-xs text-emerald-900 font-medium animate-fadeIn"
+        >
           <div className="flex items-center gap-2.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{notice}</span>
           </div>
           <button
+            id="btn-notice-view-logs"
+            data-testid="btn-notice-view-logs"
             onClick={() => {
               sounds.playClick();
               onNavigate('deliveries');
             }}
-            className="flex items-center gap-1 font-bold text-emerald-700 hover:underline shrink-0"
+            className="flex items-center gap-1 font-bold text-emerald-700 hover:underline shrink-0 cursor-pointer"
           >
             <span>View Delivery Logs</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -236,7 +244,11 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
               position="top"
               className="w-full"
             >
-              <div className="glass-card rounded-2xl p-6 flex flex-col justify-between transition-all duration-300 group hover:border-slate-300 h-full w-full cursor-help">
+              <div 
+                id={`scenario-card-${sc.id}`}
+                data-testid={`scenario-card-${sc.id}`}
+                className="glass-card rounded-2xl p-6 flex flex-col justify-between transition-all duration-300 group hover:border-slate-300 h-full w-full cursor-help"
+              >
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -269,12 +281,14 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
                 </div>
 
                 <button
+                  id={`btn-scenario-${sc.id}`}
+                  data-testid={`btn-scenario-${sc.id}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleRunScenario(sc);
                   }}
                   disabled={isRunning}
-                  className="mt-5 w-full flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-emerald-600 active:scale-95 transition shadow-sm disabled:opacity-50"
+                  className="mt-5 w-full flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-emerald-600 active:scale-95 transition shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                   <span>{activeScenario === sc.id ? 'Dispatching...' : 'Trigger Scenario'}</span>

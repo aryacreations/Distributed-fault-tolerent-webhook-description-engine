@@ -236,7 +236,44 @@ npm run dev
 
 ---
 
-## 8. Repository Structure
+## 8. End-to-End Automation & Cursor Control (Playwright & Selenium)
+
+Every interactive UI element across the dashboard is tagged with standardized `data-testid` and `id` attributes. This enables full cursor tracking, mouse hover actions, and autonomous execution.
+
+### Key Test Selectors:
+| Target Component | `data-testid` Selector | Action |
+|:---|:---|:---|
+| **Navigation Tabs** | `nav-tab-overview`, `nav-tab-dispatch`, `nav-tab-simulator`, `nav-tab-deliveries`, `nav-tab-architecture` | Hover and click section tabs |
+| **Walkthrough Guide** | `btn-walkthrough-guide`, `btn-tour-autoplay-toggle`, `btn-tour-next`, `btn-tour-close` | Launch & control guided tour |
+| **Interactive Tour** | `btn-header-tour-toggle`, `btn-sidebar-tour` | Toggle hover inspection mode |
+| **Dispatch Form** | `input-destination-url`, `input-event-id`, `textarea-payload`, `btn-dispatch-submit` | Fill & submit 202 webhook |
+| **Payload Templates** | `btn-tpl-signup`, `btn-tpl-payment`, `btn-tpl-order`, `btn-tpl-subscription` | Click payload presets |
+| **Simulation Scenarios** | `btn-scenario-success`, `btn-scenario-recovering`, `btn-scenario-dlq`, `btn-scenario-rate-limited` | Trigger failure modes |
+| **Audit Logs & Inspector** | `input-search-jobs`, `filter-tab-SUCCESS`, `filter-tab-ALL`, `btn-inspect-job`, `btn-close-modal` | Search & inspect payloads |
+
+### Running the Automation Scripts:
+
+#### 1. Playwright Automation:
+```bash
+# Install playwright if not already installed:
+npm install -D playwright
+
+# Run the full automated cursor & scenario test:
+npm run test:playwright
+```
+
+#### 2. Selenium (Python) Automation:
+```bash
+# Install Selenium & WebDriver Manager:
+pip install selenium webdriver-manager
+
+# Run Selenium cursor actions:
+npm run test:selenium
+```
+
+---
+
+## 9. Repository Structure
 
 ```text
 ├── ARCHITECTURE.md          # Complete Technical Specification & Diagrams

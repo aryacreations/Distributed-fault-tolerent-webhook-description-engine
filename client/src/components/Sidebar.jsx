@@ -101,11 +101,13 @@ export default function Sidebar({ activeTab, setActiveTab, onStartWalkthrough })
                 className="w-full"
               >
                 <button
+                  id={`nav-tab-${item.id}`}
+                  data-testid={`nav-tab-${item.id}`}
                   onClick={() => {
                     sounds.playWhoosh();
                     setActiveTab(item.id);
                   }}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-all duration-200 ${
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-all duration-200 cursor-pointer ${
                     isActive
                       ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/25 font-semibold'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium'
@@ -142,8 +144,10 @@ export default function Sidebar({ activeTab, setActiveTab, onStartWalkthrough })
       <div className="space-y-3.5 pt-4 border-t border-slate-200/70">
         {/* Interactive Tour Play/Pause Card */}
         <button
+          id="btn-sidebar-tour"
+          data-testid="btn-sidebar-tour"
           onClick={toggleTour}
-          className={`w-full p-3.5 rounded-2xl text-left transition-all shadow-sm active:scale-95 border ${
+          className={`w-full p-3.5 rounded-2xl text-left transition-all shadow-sm active:scale-95 border cursor-pointer ${
             isTourActive
               ? 'bg-emerald-50/90 border-emerald-300 ring-1 ring-emerald-500/20'
               : 'bg-white hover:bg-slate-50 border-slate-200'
@@ -224,6 +228,8 @@ export default function Sidebar({ activeTab, setActiveTab, onStartWalkthrough })
         </div>
 
         <a
+          id="link-github-repo"
+          data-testid="link-github-repo"
           href="https://github.com/aryacreations/Distributed-fault-tolerent-webhook-description-engine"
           target="_blank"
           rel="noopener noreferrer"

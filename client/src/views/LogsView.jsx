@@ -63,7 +63,7 @@ export default function LogsView({
   });
 
   return (
-    <div className="space-y-5 max-w-7xl mx-auto">
+    <div className="space-y-5 max-w-7xl mx-auto" data-tour-target="delivery-table">
       {/* Control Bar: Filters & Search */}
       <div className="glass-card rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Status Filter Tabs */}
@@ -73,11 +73,13 @@ export default function LogsView({
             return (
               <button
                 key={tab}
+                id={`filter-tab-${tab}`}
+                data-testid={`filter-tab-${tab}`}
                 onClick={() => {
                   sounds.playClick();
                   onStatusChange(tab === 'ALL' ? '' : tab);
                 }}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                   isActive
                     ? 'bg-white text-slate-900 shadow-sm border border-slate-200/80'
                     : 'text-slate-500 hover:text-slate-800'
@@ -93,6 +95,8 @@ export default function LogsView({
         <div className="relative min-w-[240px] sm:min-w-[280px]">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
+            id="input-search-jobs"
+            data-testid="input-search-jobs"
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -142,6 +146,8 @@ export default function LogsView({
                   return (
                     <tr
                       key={job.jobId}
+                      id={`job-row-${job.jobId}`}
+                      data-testid="job-row"
                       onMouseEnter={() => sounds.playHover()}
                       onClick={() => {
                         sounds.playClick();
@@ -206,12 +212,14 @@ export default function LogsView({
 
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <button
+                          id={`btn-inspect-${job.jobId}`}
+                          data-testid="btn-inspect-job"
                           onClick={(e) => {
                             e.stopPropagation();
                             sounds.playClick();
                             onSelectJob(job.jobId);
                           }}
-                          className="px-2.5 py-1 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 text-xs font-semibold transition"
+                          className="px-2.5 py-1 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 text-xs font-semibold transition cursor-pointer"
                         >
                           View Details &rarr;
                         </button>
@@ -233,22 +241,26 @@ export default function LogsView({
             </div>
             <div className="flex items-center gap-2">
               <button
+                id="btn-page-prev"
+                data-testid="btn-page-prev"
                 disabled={pagination.page <= 1}
                 onClick={() => {
                   sounds.playClick();
                   onPageChange(pagination.page - 1);
                 }}
-                className="px-3 py-1.5 bg-white hover:bg-slate-50 disabled:opacity-40 text-slate-700 font-semibold rounded-xl border border-slate-200 shadow-sm transition"
+                className="px-3 py-1.5 bg-white hover:bg-slate-50 disabled:opacity-40 text-slate-700 font-semibold rounded-xl border border-slate-200 shadow-sm transition cursor-pointer"
               >
                 Previous
               </button>
               <button
+                id="btn-page-next"
+                data-testid="btn-page-next"
                 disabled={pagination.page >= pagination.totalPages}
                 onClick={() => {
                   sounds.playClick();
                   onPageChange(pagination.page + 1);
                 }}
-                className="px-3 py-1.5 bg-white hover:bg-slate-50 disabled:opacity-40 text-slate-700 font-semibold rounded-xl border border-slate-200 shadow-sm transition"
+                className="px-3 py-1.5 bg-white hover:bg-slate-50 disabled:opacity-40 text-slate-700 font-semibold rounded-xl border border-slate-200 shadow-sm transition cursor-pointer"
               >
                 Next
               </button>

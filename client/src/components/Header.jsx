@@ -58,8 +58,10 @@ export default function Header({
       <div className="flex items-center space-x-2.5">
         {/* Interactive Tour Play / Pause Toggle Button */}
         <button
+          id="btn-header-tour-toggle"
+          data-testid="btn-header-tour-toggle"
           onClick={toggleTour}
-          className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm active:scale-95 ${
+          className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm active:scale-95 cursor-pointer ${
             isTourActive
               ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 ring-2 ring-emerald-500/20'
               : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
@@ -82,11 +84,13 @@ export default function Header({
 
         {/* Step-by-Step Guided Walkthrough Button */}
         <button
+          id="btn-walkthrough-guide"
+          data-testid="btn-walkthrough-guide"
           onClick={() => {
             sounds.playClick();
             onStartWalkthrough();
           }}
-          className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition active:scale-95"
+          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition active:scale-95 cursor-pointer"
           title="Open Step-by-Step Guided Walkthrough"
         >
           <Compass className="w-3.5 h-3.5 text-slate-500" />
@@ -95,9 +99,11 @@ export default function Header({
 
         {/* Global Sound Effects Toggle */}
         <button
+          id="btn-sound-toggle"
+          data-testid="btn-sound-toggle"
           onClick={handleToggleSound}
           title={isAudioMuted ? 'Unmute Sound Effects' : 'Mute Sound Effects'}
-          className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition"
+          className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer"
         >
           {isAudioMuted ? (
             <VolumeX className="w-4 h-4 text-rose-500" />
@@ -108,12 +114,14 @@ export default function Header({
 
         {/* Refresh Button */}
         <button
+          id="btn-refresh"
+          data-testid="btn-refresh"
           onClick={() => {
             sounds.playClick();
             onRefresh();
           }}
           disabled={isRefreshing}
-          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition active:scale-95 disabled:opacity-50"
+          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition active:scale-95 disabled:opacity-50 cursor-pointer"
         >
           <RefreshCw className={`w-3.5 h-3.5 text-slate-600 ${isRefreshing ? 'animate-spin text-emerald-600' : ''}`} />
           <span className="hidden sm:inline">{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>

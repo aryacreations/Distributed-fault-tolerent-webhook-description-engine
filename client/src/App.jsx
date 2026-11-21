@@ -78,7 +78,10 @@ function DashboardApp() {
   const handleStartTour = () => {
     setShowWelcomeModal(false);
     setIsTourActive(true);
-    setIsAutopilotRunning(true);
+    setIsAutopilotRunning(false);
+    setTimeout(() => {
+      setIsAutopilotRunning(true);
+    }, 50);
   };
 
   const handleCloseTour = () => {

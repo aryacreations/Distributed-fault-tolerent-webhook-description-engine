@@ -107,7 +107,7 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
   return (
     <div className="space-y-6">
       {/* 6 Metric Cards with Interactive Hovercards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4" data-tour-target="overview-metrics">
         {cards.map((card, idx) => {
           const Icon = card.icon;
           return (
@@ -121,7 +121,11 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
               position="bottom"
               className="w-full"
             >
-              <div className="glass-card rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 cursor-help w-full h-full">
+              <div 
+                id={`metric-card-${idx}`}
+                data-testid={`metric-card-${idx}`}
+                className="glass-card rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 cursor-help w-full h-full"
+              >
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -172,11 +176,13 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
               </p>
             </div>
             <button
+              id="btn-open-dispatch"
+              data-testid="btn-open-dispatch"
               onClick={() => {
                 sounds.playClick();
                 onNavigate('dispatch');
               }}
-              className="mt-5 w-fit flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition active:scale-95"
+              className="mt-5 w-fit flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition active:scale-95 cursor-pointer"
             >
               <span>Open Dispatch Studio</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -207,11 +213,13 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
               </p>
             </div>
             <button
+              id="btn-open-simulator"
+              data-testid="btn-open-simulator"
               onClick={() => {
                 sounds.playClick();
                 onNavigate('simulator');
               }}
-              className="mt-5 w-fit flex items-center space-x-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold shadow-md shadow-amber-600/20 transition active:scale-95"
+              className="mt-5 w-fit flex items-center space-x-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold shadow-md shadow-amber-600/20 transition active:scale-95 cursor-pointer"
             >
               <span>Open Testing Lab</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -232,11 +240,13 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
             </p>
           </div>
           <button
+            id="btn-view-all-logs"
+            data-testid="btn-view-all-logs"
             onClick={() => {
               sounds.playClick();
               onNavigate('deliveries');
             }}
-            className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center space-x-1"
+            className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center space-x-1 cursor-pointer"
           >
             <span>View All Logs ({metrics.totalJobs})</span>
             <ArrowRight className="w-3.5 h-3.5" />

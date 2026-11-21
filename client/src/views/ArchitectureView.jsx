@@ -40,7 +40,7 @@ export default function ArchitectureView() {
   ];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-8 max-w-7xl mx-auto" data-tour-target="architecture-blueprint">
       {/* Header Banner */}
       <div className="glass-card rounded-2xl p-6 sm:p-7 border-l-4 border-l-emerald-500">
         <div className="flex items-center space-x-2 text-emerald-700 font-bold text-xs uppercase tracking-wider mb-1">
