@@ -8,7 +8,9 @@ import LogsView from './views/LogsView';
 import ArchitectureView from './views/ArchitectureView';
 import JobDetailModal from './components/JobDetailModal';
 import AnimatedExplainerModal from './components/AnimatedExplainerModal';
+import GuidedTourModal from './components/GuidedTourModal';
 import { fetchJobs, fetchStats } from './services/api';
+import sounds from './utils/soundEngine';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -18,6 +20,7 @@ export default function App() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState(null);
   const [showExplainer, setShowExplainer] = useState(false);
+  const [showTour, setShowTour] = useState(false);
   const [currentStatus, setCurrentStatus] = useState('');
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
 
@@ -77,6 +80,7 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenExplainer={() => setShowExplainer(true)}
+        onStartTour={() => setShowTour(true)}
       />
 
       {/* 2. Main Fluid Work Area */}
@@ -88,6 +92,7 @@ export default function App() {
           isRefreshing={isRefreshing}
           stats={stats}
           onOpenExplainer={() => setShowExplainer(true)}
+          onStartTour={() => setShowTour(true)}
         />
 
         {/* Dynamic Section Dashboard View */}
@@ -96,7 +101,10 @@ export default function App() {
             <OverviewView
               stats={stats}
               jobs={jobs}
-              onNavigate={(tab) => setActiveTab(tab)}
+              onNavigate={(tab) => {
+                sounds.playWhoosh();
+                setActiveTab(tab);
+              }}
               onSelectJob={(id) => setSelectedJobId(id)}
             />
           )}
@@ -112,7 +120,10 @@ export default function App() {
           {activeTab === 'simulator' && (
             <SimulatorView
               onTriggeredTest={() => loadData(false)}
-              onNavigate={(tab) => setActiveTab(tab)}
+              onNavigate={(tab) => {
+                sounds.playWhoosh();
+                setActiveTab(tab);
+              }}
             />
           )}
 
@@ -144,6 +155,13 @@ export default function App() {
       <AnimatedExplainerModal
         isOpen={showExplainer}
         onClose={() => setShowExplainer(false)}
+      />
+
+      {/* 5. Interactive Guided Spotlight Tour */}
+      <GuidedTourModal
+        isOpen={showTour}
+        onClose={() => setShowTour(false)}
+        onNavigateTab={(tab) => setActiveTab(tab)}
       />
     </div>
   );

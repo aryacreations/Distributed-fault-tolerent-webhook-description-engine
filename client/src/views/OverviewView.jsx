@@ -11,6 +11,8 @@ import {
   ShieldCheck, 
   Activity 
 } from 'lucide-react';
+import InteractiveHoverCard from '../components/InteractiveHoverCard';
+import sounds from '../utils/soundEngine';
 
 export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
   const metrics = stats?.metrics || {
@@ -33,6 +35,10 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
       icon: Send,
       color: 'text-blue-600 bg-blue-50 border-blue-200/60',
       badge: '<30ms Ingestion',
+      category: 'Ingestion Layer',
+      desc: 'Count of all accepted webhook events received via POST /api/webhooks/dispatch.',
+      underTheHood: 'Stored in MongoDB webhook_jobs with status: QUEUED and pushed to BullMQ.',
+      tip: 'The ingestion API returns 202 Accepted in under 30ms without waiting for downstream HTTP calls.',
     },
     {
       title: 'Delivered (2xx)',
@@ -41,6 +47,10 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
       icon: CheckCircle2,
       color: 'text-emerald-600 bg-emerald-50 border-emerald-200/60',
       badge: 'Delivered',
+      category: 'Success State',
+      desc: 'Webhooks that received an HTTP 2xx acknowledgment from the target destination.',
+      underTheHood: 'Marked SUCCESS in MongoDB with completedAt timestamp; stored in DeliveryAttempt.',
+      tip: 'We treat HTTP 200 through 299 as definitive delivery acknowledgment and close the job.',
     },
     {
       title: 'Retrying (In Backoff)',
@@ -49,6 +59,10 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
       icon: RotateCw,
       color: 'text-amber-600 bg-amber-50 border-amber-200/60',
       badge: '2s, 4s, 8s',
+      category: 'Fault Tolerance',
+      desc: 'Active jobs waiting in Redis delayed set before their next backoff attempt.',
+      underTheHood: 'Redis Sorted Sets (ZSET) store delayed jobs with timestamp score. O(log N) insertion.',
+      tip: 'Tell the interviewer that BullMQ delayed sets eliminate wasteful database polling.',
     },
     {
       title: 'Dead-Letter (DLQ)',
@@ -57,6 +71,10 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
       icon: AlertTriangle,
       color: 'text-rose-600 bg-rose-50 border-rose-200/60',
       badge: 'Permanent',
+      category: 'Dead Letter Queue',
+      desc: 'Jobs that permanently failed after 3 exponential retries or received non-retryable 4xx errors.',
+      underTheHood: 'Marked FAILED in MongoDB with lastError. No further worker attempts are scheduled.',
+      tip: 'Permanent client errors (400, 401, 404) fail fast without retrying to save bandwidth.',
     },
     {
       title: 'Avg Downstream Latency',
@@ -65,6 +83,10 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
       icon: Clock,
       color: 'text-purple-600 bg-purple-50 border-purple-200/60',
       badge: 'Non-Blocking',
+      category: 'Telemetry',
+      desc: 'Average roundtrip latency across all external webhook dispatches.',
+      underTheHood: 'Calculated from the durationMs column of delivery_attempts collection in MongoDB.',
+      tip: 'Even when this latency spikes to 5 seconds, our ingestion API remains under 30 milliseconds.',
     },
     {
       title: 'Queue Pipeline',
@@ -73,6 +95,10 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
       icon: Layers,
       color: 'text-cyan-600 bg-cyan-50 border-cyan-200/60',
       badge: 'Redis FIFO',
+      category: 'Broker Queue',
+      desc: 'Total active and waiting jobs in Redis memory buffer awaiting worker pickup.',
+      underTheHood: 'Managed in-memory by Upstash Redis with TLS. Worker concurrency = 5 jobs.',
+      tip: 'Redis acts as a shock absorber during traffic spikes, protecting downstream services.',
     },
   ];
 
@@ -80,84 +106,118 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
 
   return (
     <div className="space-y-6">
-      {/* 6 Metric Cards */}
+      {/* 6 Metric Cards with Interactive Hovercards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {cards.map((card, idx) => {
           const Icon = card.icon;
           return (
-            <div
+            <InteractiveHoverCard
               key={idx}
-              className="glass-card rounded-2xl p-5 flex flex-col justify-between transition-all duration-300"
+              title={card.title}
+              category={card.category}
+              description={card.desc}
+              underTheHood={card.underTheHood}
+              interviewTip={card.tip}
+              position="bottom"
+              className="w-full"
             >
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    {card.title}
-                  </span>
-                  <div className={`p-2 rounded-xl border ${card.color}`}>
-                    <Icon className="w-4 h-4" />
+              <div className="glass-card rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 cursor-help w-full h-full">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      {card.title}
+                    </span>
+                    <div className={`p-2 rounded-xl border ${card.color}`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                    {card.value}
                   </div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                  {card.value}
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                  <span className="truncate">{card.sub}</span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 shrink-0">
+                    {card.badge}
+                  </span>
                 </div>
               </div>
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
-                <span className="truncate">{card.sub}</span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 shrink-0">
-                  {card.badge}
-                </span>
-              </div>
-            </div>
+            </InteractiveHoverCard>
           );
         })}
       </div>
 
       {/* Action Prompts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div className="glass-card rounded-2xl p-6 border-l-4 border-l-emerald-500 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center space-x-2 text-emerald-700 font-bold text-sm mb-1">
-              <Send className="w-4 h-4" />
-              <span>Dispatch Studio</span>
+        <InteractiveHoverCard
+          title="Dispatch Studio Workspace"
+          category="Ingestion"
+          description="Formulate custom payloads and test sub-30ms 202 Accepted responses."
+          underTheHood="Express Controller -> Zod Validation -> MongoDB WebhookJob -> BullMQ Queue."
+          interviewTip="Show the interviewer how fast the 202 response returns regardless of downstream latency."
+          position="top"
+          className="w-full"
+        >
+          <div className="glass-card rounded-2xl p-6 border-l-4 border-l-emerald-500 flex flex-col justify-between h-full">
+            <div>
+              <div className="flex items-center space-x-2 text-emerald-700 font-bold text-sm mb-1">
+                <Send className="w-4 h-4" />
+                <span>Dispatch Studio</span>
+              </div>
+              <h3 className="text-lg font-extrabold text-slate-900">
+                Submit Custom Webhook Event
+              </h3>
+              <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                Queue webhooks with custom JSON payloads and destination URLs. Experience sub-30ms non-blocking HTTP 202 Accepted responses.
+              </p>
             </div>
-            <h3 className="text-lg font-extrabold text-slate-900">
-              Submit Custom Webhook Event
-            </h3>
-            <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-              Queue webhooks with custom JSON payloads and destination URLs. Experience sub-30ms non-blocking HTTP 202 Accepted responses.
-            </p>
+            <button
+              onClick={() => {
+                sounds.playClick();
+                onNavigate('dispatch');
+              }}
+              className="mt-5 w-fit flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition active:scale-95"
+            >
+              <span>Open Dispatch Studio</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
-          <button
-            onClick={() => onNavigate('dispatch')}
-            className="mt-5 w-fit flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition"
-          >
-            <span>Open Dispatch Studio</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
+        </InteractiveHoverCard>
 
-        <div className="glass-card rounded-2xl p-6 border-l-4 border-l-amber-500 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center space-x-2 text-amber-700 font-bold text-sm mb-1">
-              <Zap className="w-4 h-4" />
-              <span>Interview Test Lab</span>
+        <InteractiveHoverCard
+          title="Interview Testing Lab"
+          category="Fault Tolerance"
+          description="Ready-made edge cases for exponential backoff, rate limits, and timeouts."
+          underTheHood="Built-in /api/mock-receiver with configurable failUntil, delay, and HTTP status params."
+          interviewTip="This allows you to demonstrate real-world failure recovery live during interviews."
+          position="top"
+          className="w-full"
+        >
+          <div className="glass-card rounded-2xl p-6 border-l-4 border-l-amber-500 flex flex-col justify-between h-full">
+            <div>
+              <div className="flex items-center space-x-2 text-amber-700 font-bold text-sm mb-1">
+                <Zap className="w-4 h-4" />
+                <span>Interview Test Lab</span>
+              </div>
+              <h3 className="text-lg font-extrabold text-slate-900">
+                Simulate Failure Modes & Retries
+              </h3>
+              <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                One-click triggers for self-healing servers, exponential backoff (2s, 4s, 8s), Dead-Letter Queues (DLQ), and rate-limit throttling.
+              </p>
             </div>
-            <h3 className="text-lg font-extrabold text-slate-900">
-              Simulate Failure Modes & Retries
-            </h3>
-            <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-              One-click triggers for self-healing servers, exponential backoff (2s, 4s, 8s), Dead-Letter Queues (DLQ), and rate-limit throttling.
-            </p>
+            <button
+              onClick={() => {
+                sounds.playClick();
+                onNavigate('simulator');
+              }}
+              className="mt-5 w-fit flex items-center space-x-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold shadow-md shadow-amber-600/20 transition active:scale-95"
+            >
+              <span>Open Test Lab</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
-          <button
-            onClick={() => onNavigate('simulator')}
-            className="mt-5 w-fit flex items-center space-x-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold shadow-md shadow-amber-600/20 transition"
-          >
-            <span>Open Test Lab</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
+        </InteractiveHoverCard>
       </div>
 
       {/* Recent Deliveries Glance */}
@@ -168,11 +228,14 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
               Recent Webhook Activity
             </h3>
             <p className="text-xs text-slate-500">
-              Latest delivery stream across all target domains
+              Latest delivery stream across all target domains (Hover over any row for insights)
             </p>
           </div>
           <button
-            onClick={() => onNavigate('deliveries')}
+            onClick={() => {
+              sounds.playClick();
+              onNavigate('deliveries');
+            }}
             className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center space-x-1"
           >
             <span>View All Logs ({metrics.totalJobs})</span>
@@ -204,7 +267,11 @@ export default function OverviewView({ stats, jobs, onNavigate, onSelectJob }) {
                 recentJobs.map((job) => (
                   <tr
                     key={job.jobId}
-                    onClick={() => onSelectJob(job.jobId)}
+                    onMouseEnter={() => sounds.playHover()}
+                    onClick={() => {
+                      sounds.playClick();
+                      onSelectJob(job.jobId);
+                    }}
                     className="hover:bg-slate-50/80 cursor-pointer transition group"
                   >
                     <td className="py-3 px-3">

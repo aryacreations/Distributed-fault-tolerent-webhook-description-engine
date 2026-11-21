@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Send, Zap, Check, AlertCircle, Copy, Sparkles, Clock, Globe } from 'lucide-react';
 import { dispatchWebhook } from '../services/api';
+import InteractiveHoverCard from '../components/InteractiveHoverCard';
+import sounds from '../utils/soundEngine';
 
 const SAMPLE_PAYLOADS = {
   signup: {
@@ -40,11 +42,13 @@ export default function DispatchView({ onJobCreated }) {
   const [error, setError] = useState(null);
 
   const handleApplyTemplate = (type) => {
+    sounds.playClick();
     setPayloadText(JSON.stringify(SAMPLE_PAYLOADS[type], null, 2));
     setEventId('evt_' + Date.now());
   };
 
   const handleSetTarget = (targetType) => {
+    sounds.playClick();
     if (targetType === 'mock200') {
       setDestinationUrl('http://localhost:5000/api/mock-receiver?status=200');
     } else if (targetType === 'mockFlaky') {
@@ -56,6 +60,7 @@ export default function DispatchView({ onJobCreated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    sounds.playClick();
     setIsLoading(true);
     setError(null);
     setResponseInfo(null);
@@ -64,6 +69,7 @@ export default function DispatchView({ onJobCreated }) {
     try {
       parsedPayload = JSON.parse(payloadText);
     } catch {
+      sounds.playWarning();
       setError('Invalid JSON syntax: please verify payload format');
       setIsLoading(false);
       return;
@@ -78,6 +84,7 @@ export default function DispatchView({ onJobCreated }) {
       });
       const duration = Math.round(performance.now() - startTime);
 
+      sounds.playSuccess();
       setResponseInfo({
         status: result.status,
         jobId: result.jobId,
@@ -89,6 +96,7 @@ export default function DispatchView({ onJobCreated }) {
       setEventId('evt_' + Date.now());
       if (onJobCreated) onJobCreated();
     } catch (err) {
+      sounds.playWarning();
       setError(err.response?.data?.message || err.message || 'Dispatch request failed');
     } finally {
       setIsLoading(false);
@@ -118,15 +126,24 @@ export default function DispatchView({ onJobCreated }) {
           </div>
           <div className="flex flex-wrap gap-2">
             {Object.keys(SAMPLE_PAYLOADS).map((tpl) => (
-              <button
+              <InteractiveHoverCard
                 key={tpl}
-                type="button"
-                onClick={() => handleApplyTemplate(tpl)}
-                className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 shadow-sm transition active:scale-95 flex items-center gap-1.5"
+                title={`${tpl.toUpperCase()} Webhook Template`}
+                category="Payload Presets"
+                description={`Pre-populated sample payload modeling an asynchronous ${tpl} event.`}
+                underTheHood="JSON schema parsed and validated by Zod at ingestion."
+                interviewTip="Shows that our engine handles polymorphic arbitrary JSON structures without rigid schema locks."
+                position="top"
               >
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="capitalize">{tpl}</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => handleApplyTemplate(tpl)}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 shadow-sm transition active:scale-95 flex items-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="capitalize">{tpl}</span>
+                </button>
+              </InteractiveHoverCard>
             ))}
           </div>
         </div>
@@ -139,20 +156,38 @@ export default function DispatchView({ onJobCreated }) {
                 Destination URL
               </label>
               <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => handleSetTarget('mock200')}
-                  className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition"
+                <InteractiveHoverCard
+                  title="Mock 200 OK Receiver"
+                  category="Healthy Endpoint"
+                  description="Routes to the built-in mock endpoint configured for immediate 200 OK success."
+                  interviewTip="Use this to test the happy path without third-party services."
+                  position="bottom"
                 >
-                  Mock 200 OK
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSetTarget('mockFlaky')}
-                  className="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition"
+                  <button
+                    type="button"
+                    onClick={() => handleSetTarget('mock200')}
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition"
+                  >
+                    Mock 200 OK
+                  </button>
+                </InteractiveHoverCard>
+
+                <InteractiveHoverCard
+                  title="Mock Flaky 500 Receiver"
+                  category="Self-Healing Target"
+                  description="Fails the first 2 attempts with HTTP 500, then succeeds on attempt 3."
+                  interviewTip="The perfect demo button to show exponential backoff retries live!"
+                  position="bottom"
                 >
-                  Mock Flaky (500)
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSetTarget('mockFlaky')}
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition"
+                  >
+                    Mock Flaky (500)
+                  </button>
+                </InteractiveHoverCard>
+
                 <button
                   type="button"
                   onClick={() => handleSetTarget('httpbin')}
@@ -175,12 +210,26 @@ export default function DispatchView({ onJobCreated }) {
           {/* Event ID */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-bold text-slate-700">
-                Event ID (Idempotency Key)
-              </label>
+              <InteractiveHoverCard
+                title="Idempotency Key (eventId)"
+                category="Duplicate Defense"
+                description="Client-supplied unique identifier to guarantee at-most-once delivery."
+                underTheHood="Indexed unique in MongoDB WebhookJob collection. Duplicates return existing jobId."
+                interviewTip="Explain how idempotency prevents duplicate billing/emails if network blips cause client retries."
+                position="top"
+              >
+                <label className="text-xs font-bold text-slate-700 cursor-help flex items-center gap-1">
+                  <span>Event ID (Idempotency Key)</span>
+                  <span className="text-[10px] text-emerald-600 underline font-normal">(Hover info)</span>
+                </label>
+              </InteractiveHoverCard>
+
               <button
                 type="button"
-                onClick={() => setEventId('evt_' + Date.now())}
+                onClick={() => {
+                  sounds.playClick();
+                  setEventId('evt_' + Date.now());
+                }}
                 className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline"
               >
                 Regenerate ID
@@ -193,9 +242,6 @@ export default function DispatchView({ onJobCreated }) {
               onChange={(e) => setEventId(e.target.value)}
               className="glass-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono text-slate-800"
             />
-            <p className="text-[11px] text-slate-400 mt-1">
-              Guarantees at-most-once enqueueing. If repeated, returns the existing job ID without duplicate dispatch.
-            </p>
           </div>
 
           {/* JSON Payload Editor */}
@@ -213,20 +259,29 @@ export default function DispatchView({ onJobCreated }) {
           </div>
 
           {/* Submit Action */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 px-5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition disabled:opacity-50"
+          <InteractiveHoverCard
+            title="Instant 202 Ingestion Trigger"
+            category="Non-Blocking API"
+            description="Queues the job in Redis BullMQ and returns HTTP 202 in under 30ms."
+            interviewTip="Highlight that this call returns immediately without waiting for the destination server."
+            position="top"
+            className="w-full"
           >
-            {isLoading ? (
-              <span>Validating & Enqueueing...</span>
-            ) : (
-              <>
-                <Zap className="w-4 h-4 fill-white" />
-                <span>Dispatch Webhook (Instant 202 Ingestion)</span>
-              </>
-            )}
-          </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 px-5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition disabled:opacity-50"
+            >
+              {isLoading ? (
+                <span>Validating & Enqueueing...</span>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4 fill-white" />
+                  <span>Dispatch Webhook (Instant 202 Ingestion)</span>
+                </>
+              )}
+            </button>
+          </InteractiveHoverCard>
         </form>
       </div>
 
@@ -243,7 +298,7 @@ export default function DispatchView({ onJobCreated }) {
 
         {/* Response Notification Banner */}
         {responseInfo && (
-          <div className="glass-card rounded-2xl p-6 border border-emerald-300 bg-emerald-50/60 shadow-lg shadow-emerald-500/10 space-y-4">
+          <div className="glass-card rounded-2xl p-6 border border-emerald-300 bg-emerald-50/60 shadow-lg shadow-emerald-500/10 space-y-4 animate-fadeIn">
             <div className="flex items-center justify-between pb-3 border-b border-emerald-200/70">
               <div className="flex items-center gap-2">
                 <Check className="w-5 h-5 text-emerald-600" />
@@ -281,7 +336,7 @@ export default function DispatchView({ onJobCreated }) {
 
         {/* Error Notification */}
         {error && (
-          <div className="glass-card rounded-2xl p-6 border border-rose-300 bg-rose-50/60 shadow-lg shadow-rose-500/10 flex items-start gap-3 text-xs text-rose-800">
+          <div className="glass-card rounded-2xl p-6 border border-rose-300 bg-rose-50/60 shadow-lg shadow-rose-500/10 flex items-start gap-3 text-xs text-rose-800 animate-fadeIn">
             <AlertCircle className="w-5 h-5 text-rose-600 mt-0.5 shrink-0" />
             <div>
               <span className="font-bold text-rose-950 block text-sm">Ingestion Error</span>

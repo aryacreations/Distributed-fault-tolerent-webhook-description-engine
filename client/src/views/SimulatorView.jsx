@@ -12,6 +12,8 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { dispatchWebhook, resetMockReceiver } from '../services/api';
+import InteractiveHoverCard from '../components/InteractiveHoverCard';
+import sounds from '../utils/soundEngine';
 
 export default function SimulatorView({ onTriggeredTest, onNavigate }) {
   const [isRunning, setIsRunning] = useState(false);
@@ -25,6 +27,7 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
   };
 
   const handleRunScenario = async (scenario) => {
+    sounds.playClick();
     setIsRunning(true);
     setActiveScenario(scenario.id);
     setNotice(null);
@@ -47,6 +50,7 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
           })
         );
         await Promise.all(promises);
+        sounds.playSuccess();
         setNotice('Dispatched 8 concurrent events! The Redis sliding-window token bucket throttles to 5 req/s without flooding.');
       } else {
         await dispatchWebhook({
@@ -59,11 +63,13 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
             triggeredAt: new Date().toISOString(),
           },
         });
+        sounds.playSuccess();
         setNotice(`Triggered: "${scenario.name}". Switch to Delivery Logs to watch the worker execution.`);
       }
 
       if (onTriggeredTest) onTriggeredTest();
     } catch (err) {
+      sounds.playWarning();
       setNotice(`Failed to trigger scenario: ${err.message}`);
     } finally {
       setIsRunning(false);
@@ -72,10 +78,13 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
   };
 
   const handleResetCounters = async () => {
+    sounds.playClick();
     try {
       await resetMockReceiver();
+      sounds.playSuccess();
       setNotice('Mock receiver simulation counters reset successfully.');
     } catch (err) {
+      sounds.playWarning();
       setNotice('Could not reset counters: ' + err.message);
     }
   };
@@ -92,6 +101,8 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       badgeColor: 'text-emerald-700 bg-emerald-50 border-emerald-200',
       icon: CheckCircle2,
       url: (base) => `${base}?status=200`,
+      underTheHood: 'HTTP 200 -> WebhookJob status SUCCESS -> DeliveryAttempt logged with latency.',
+      tip: 'Tests the fundamental happy path where the target responds immediately.',
     },
     {
       id: 'recovering',
@@ -104,6 +115,8 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       badgeColor: 'text-amber-700 bg-amber-50 border-amber-200',
       icon: Zap,
       url: (base, evtId) => `${base}?failUntil=2&code=500&key=${evtId}`,
+      underTheHood: 'Worker catches 500 error -> throws -> BullMQ schedules delayed execution in Redis ZSET.',
+      tip: 'The star demo scenario! Watch the 2s and 4s countdown timers live on the Delivery Logs table.',
     },
     {
       id: 'dlq',
@@ -116,6 +129,8 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       badgeColor: 'text-rose-700 bg-rose-50 border-rose-200',
       icon: AlertTriangle,
       url: (base) => `${base}?status=500`,
+      underTheHood: 'After 3 retries exhausted, job transitions to FAILED state and is moved to DLQ.',
+      tip: 'Explain that dead-lettering prevents poison-pill jobs from clogging worker threads forever.',
     },
     {
       id: 'rate_limited',
@@ -128,6 +143,8 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       badgeColor: 'text-orange-700 bg-orange-50 border-orange-200',
       icon: ShieldAlert,
       url: (base) => `${base}?status=429`,
+      underTheHood: 'dispatcherService identifies HTTP 429 as isTransient = true, triggering exponential backoff.',
+      tip: 'Highlights intelligent error classification: unlike 400 or 404, 429 is retried safely.',
     },
     {
       id: 'timeout',
@@ -140,6 +157,8 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       badgeColor: 'text-purple-700 bg-purple-50 border-purple-200',
       icon: Timer,
       url: (base) => `${base}?delay=6500`,
+      underTheHood: 'Axios timeout: 5000ms aborts socket to prevent zombie thread leaks.',
+      tip: 'Essential in microservices to prevent slow third-party servers from hanging our workers.',
     },
     {
       id: 'rapid_fire',
@@ -152,6 +171,8 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       badgeColor: 'text-cyan-700 bg-cyan-50 border-cyan-200',
       icon: Layers,
       url: (base) => `${base}?status=200`,
+      underTheHood: 'Redis sliding-window checkDomainRateLimit(domain) caps to 5 req/s with atomic Lua/pipeline.',
+      tip: 'Demonstrates multi-tenant fairness and prevents single-domain thundering-herd spikes.',
     },
   ];
 
@@ -182,13 +203,16 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
       </div>
 
       {notice && (
-        <div className="glass-card rounded-2xl p-4 border border-emerald-300 bg-emerald-50/80 flex items-center justify-between gap-3 text-xs text-emerald-900 font-medium">
+        <div className="glass-card rounded-2xl p-4 border border-emerald-300 bg-emerald-50/80 flex items-center justify-between gap-3 text-xs text-emerald-900 font-medium animate-fadeIn">
           <div className="flex items-center gap-2.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{notice}</span>
           </div>
           <button
-            onClick={() => onNavigate('deliveries')}
+            onClick={() => {
+              sounds.playClick();
+              onNavigate('deliveries');
+            }}
             className="flex items-center gap-1 font-bold text-emerald-700 hover:underline shrink-0"
           >
             <span>View Delivery Logs</span>
@@ -197,55 +221,66 @@ export default function SimulatorView({ onTriggeredTest, onNavigate }) {
         </div>
       )}
 
-      {/* 6 Big Scenario Cards */}
+      {/* 6 Big Scenario Cards with Interactive Hovercards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {scenarios.map((sc) => {
           const Icon = sc.icon;
           return (
-            <div
+            <InteractiveHoverCard
               key={sc.id}
-              className="glass-card rounded-2xl p-6 flex flex-col justify-between transition-all duration-300 group hover:border-slate-300"
+              title={sc.name}
+              category={sc.category}
+              description={sc.desc}
+              underTheHood={sc.underTheHood}
+              interviewTip={sc.tip}
+              position="top"
+              className="w-full"
             >
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    {sc.category}
-                  </span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${sc.badgeColor}`}>
-                    {sc.badge}
-                  </span>
-                </div>
-
-                <div className="flex items-center space-x-2.5 mb-2">
-                  <div className="p-2 rounded-xl bg-slate-100 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition">
-                    <Icon className="w-4 h-4" />
+              <div className="glass-card rounded-2xl p-6 flex flex-col justify-between transition-all duration-300 group hover:border-slate-300 h-full w-full cursor-help">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      {sc.category}
+                    </span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${sc.badgeColor}`}>
+                      {sc.badge}
+                    </span>
                   </div>
-                  <h3 className="text-sm font-extrabold text-slate-900 group-hover:text-emerald-700 transition">
-                    {sc.name}
-                  </h3>
+
+                  <div className="flex items-center space-x-2.5 mb-2">
+                    <div className="p-2 rounded-xl bg-slate-100 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition">
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-sm font-extrabold text-slate-900 group-hover:text-emerald-700 transition">
+                      {sc.name}
+                    </h3>
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                    {sc.desc}
+                  </p>
+
+                  <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/60 font-mono text-[11px] text-slate-700 space-y-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block font-sans">
+                      Expected Behavior:
+                    </span>
+                    <p className="text-xs">{sc.expected}</p>
+                  </div>
                 </div>
 
-                <p className="text-xs text-slate-600 leading-relaxed mb-4">
-                  {sc.desc}
-                </p>
-
-                <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/60 font-mono text-[11px] text-slate-700 space-y-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block font-sans">
-                    Expected Behavior:
-                  </span>
-                  <p className="text-xs">{sc.expected}</p>
-                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRunScenario(sc);
+                  }}
+                  disabled={isRunning}
+                  className="mt-5 w-full flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-emerald-600 active:scale-95 transition shadow-sm disabled:opacity-50"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>{activeScenario === sc.id ? 'Dispatching...' : 'Trigger Scenario'}</span>
+                </button>
               </div>
-
-              <button
-                onClick={() => handleRunScenario(sc)}
-                disabled={isRunning}
-                className="mt-5 w-full flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-emerald-600 active:scale-95 transition shadow-sm disabled:opacity-50"
-              >
-                <Play className="w-3.5 h-3.5 fill-current" />
-                <span>{activeScenario === sc.id ? 'Dispatching...' : 'Trigger Scenario'}</span>
-              </button>
-            </div>
+            </InteractiveHoverCard>
           );
         })}
       </div>

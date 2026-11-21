@@ -9,6 +9,8 @@ import {
   AlertTriangle, 
   ExternalLink 
 } from 'lucide-react';
+import InteractiveHoverCard from '../components/InteractiveHoverCard';
+import sounds from '../utils/soundEngine';
 
 const STATUS_CONFIG = {
   SUCCESS: {
@@ -71,7 +73,10 @@ export default function LogsView({
             return (
               <button
                 key={tab}
-                onClick={() => onStatusChange(tab === 'ALL' ? '' : tab)}
+                onClick={() => {
+                  sounds.playClick();
+                  onStatusChange(tab === 'ALL' ? '' : tab);
+                }}
                 className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
                   isActive
                     ? 'bg-white text-slate-900 shadow-sm border border-slate-200/80'
@@ -137,7 +142,11 @@ export default function LogsView({
                   return (
                     <tr
                       key={job.jobId}
-                      onClick={() => onSelectJob(job.jobId)}
+                      onMouseEnter={() => sounds.playHover()}
+                      onClick={() => {
+                        sounds.playClick();
+                        onSelectJob(job.jobId);
+                      }}
                       className="hover:bg-slate-50/90 cursor-pointer transition group"
                     >
                       <td className="py-3.5 px-4 whitespace-nowrap">
@@ -199,6 +208,7 @@ export default function LogsView({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            sounds.playClick();
                             onSelectJob(job.jobId);
                           }}
                           className="px-2.5 py-1 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 text-xs font-semibold transition"
@@ -224,14 +234,20 @@ export default function LogsView({
             <div className="flex items-center gap-2">
               <button
                 disabled={pagination.page <= 1}
-                onClick={() => onPageChange(pagination.page - 1)}
+                onClick={() => {
+                  sounds.playClick();
+                  onPageChange(pagination.page - 1);
+                }}
                 className="px-3 py-1.5 bg-white hover:bg-slate-50 disabled:opacity-40 text-slate-700 font-semibold rounded-xl border border-slate-200 shadow-sm transition"
               >
                 Previous
               </button>
               <button
                 disabled={pagination.page >= pagination.totalPages}
-                onClick={() => onPageChange(pagination.page + 1)}
+                onClick={() => {
+                  sounds.playClick();
+                  onPageChange(pagination.page + 1);
+                }}
                 className="px-3 py-1.5 bg-white hover:bg-slate-50 disabled:opacity-40 text-slate-700 font-semibold rounded-xl border border-slate-200 shadow-sm transition"
               >
                 Next
