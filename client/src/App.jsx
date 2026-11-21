@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { TourProvider } from './context/TourContext';
+import { TourProvider, useTour } from './context/TourContext';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import OverviewView from './views/OverviewView';
@@ -8,18 +8,21 @@ import SimulatorView from './views/SimulatorView';
 import LogsView from './views/LogsView';
 import ArchitectureView from './views/ArchitectureView';
 import JobDetailModal from './components/JobDetailModal';
-import GuidedTourModal from './components/GuidedTourModal';
+import WelcomeTourModal from './components/WelcomeTourModal';
+import AutopilotTour from './components/AutopilotTour';
 import { fetchJobs, fetchStats } from './services/api';
 import sounds from './utils/soundEngine';
 
 function DashboardApp() {
+  const { isTourActive, setIsTourActive } = useTour();
   const [activeTab, setActiveTab] = useState('overview');
   const [jobs, setJobs] = useState([]);
   const [stats, setStats] = useState(null);
   const [isLoadingJobs, setIsLoadingJobs] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState(null);
-  const [showWalkthrough, setShowWalkthrough] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(true); // Pops up when website opens
+  const [isAutopilotRunning, setIsAutopilotRunning] = useState(false);
   const [currentStatus, setCurrentStatus] = useState('');
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
 
@@ -72,13 +75,23 @@ function DashboardApp() {
     setPagination((prev) => ({ ...prev, page: newPage }));
   };
 
+  const handleStartTour = () => {
+    setShowWelcomeModal(false);
+    setIsTourActive(true);
+    setIsAutopilotRunning(true);
+  };
+
+  const handleCloseTour = () => {
+    setIsAutopilotRunning(false);
+  };
+
   return (
     <div className="min-h-screen flex bg-slate-50 text-slate-800 font-sans selection:bg-emerald-500 selection:text-white">
       {/* 1. Left Sleek Sidebar */}
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onStartWalkthrough={() => setShowWalkthrough(true)}
+        onStartWalkthrough={handleStartTour}
       />
 
       {/* 2. Main Fluid Work Area */}
@@ -89,7 +102,7 @@ function DashboardApp() {
           onRefresh={() => loadData(true)}
           isRefreshing={isRefreshing}
           stats={stats}
-          onStartWalkthrough={() => setShowWalkthrough(true)}
+          onStartWalkthrough={handleStartTour}
         />
 
         {/* Dynamic Section Dashboard View */}
@@ -148,10 +161,17 @@ function DashboardApp() {
         />
       )}
 
-      {/* 4. Interactive Guided Walkthrough Modal */}
-      <GuidedTourModal
-        isOpen={showWalkthrough}
-        onClose={() => setShowWalkthrough(false)}
+      {/* 4. Initial Welcome Virtual Tour Popup (Opens on site load) */}
+      <WelcomeTourModal
+        isOpen={showWelcomeModal}
+        onStartTour={handleStartTour}
+        onClose={() => setShowWelcomeModal(false)}
+      />
+
+      {/* 5. Autopilot Virtual Tour (Automatically navigates tabs and explains sections) */}
+      <AutopilotTour
+        isActive={isAutopilotRunning}
+        onClose={handleCloseTour}
         onNavigateTab={(tab) => setActiveTab(tab)}
       />
     </div>
