@@ -1,0 +1,41 @@
+services:
+  # 1. Backend Web Service (Node.js + Express + BullMQ Worker)
+  - type: web
+    name: distributed-webhook-engine-backend
+    env: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node src/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false # Set in Render Dashboard
+      - key: REDIS_URL
+        sync: false # Set in Render Dashboard
+      - key: RATE_LIMIT_PER_SECOND_PER_DOMAIN
+        value: "5"
+      - key: DISPATCH_TIMEOUT_MS
+        value: "5000"
+      - key: MAX_RETRIES
+        value: "3"
+      - key: WEBHOOK_SECRET
+        value: "whsec_prod_dispatcher_secret_key_2026"
+
+  # 2. Frontend Static Site (React + Vite + Tailwind)
+  - type: web
+    name: distributed-webhook-engine-frontend
+    env: static
+    plan: free
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false # Set to Backend's live URL (e.g. https://distributed-webhook-engine-backend.onrender.com)
