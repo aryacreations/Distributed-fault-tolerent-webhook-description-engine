@@ -7,6 +7,7 @@ import SimulatorView from './views/SimulatorView';
 import LogsView from './views/LogsView';
 import ArchitectureView from './views/ArchitectureView';
 import JobDetailModal from './components/JobDetailModal';
+import AnimatedExplainerModal from './components/AnimatedExplainerModal';
 import { fetchJobs, fetchStats } from './services/api';
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
   const [isLoadingJobs, setIsLoadingJobs] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState(null);
+  const [showExplainer, setShowExplainer] = useState(false);
   const [currentStatus, setCurrentStatus] = useState('');
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
 
@@ -71,7 +73,11 @@ export default function App() {
   return (
     <div className="min-h-screen flex bg-slate-50 text-slate-800 font-sans selection:bg-emerald-500 selection:text-white">
       {/* 1. Left Sleek Sidebar */}
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onOpenExplainer={() => setShowExplainer(true)}
+      />
 
       {/* 2. Main Fluid Work Area */}
       <div className="flex-1 min-w-0 flex flex-col min-h-screen overflow-x-hidden">
@@ -81,6 +87,7 @@ export default function App() {
           onRefresh={() => loadData(true)}
           isRefreshing={isRefreshing}
           stats={stats}
+          onOpenExplainer={() => setShowExplainer(true)}
         />
 
         {/* Dynamic Section Dashboard View */}
@@ -132,6 +139,12 @@ export default function App() {
           onClose={() => setSelectedJobId(null)}
         />
       )}
+
+      {/* 4. Animated Explainer Video Modal */}
+      <AnimatedExplainerModal
+        isOpen={showExplainer}
+        onClose={() => setShowExplainer(false)}
+      />
     </div>
   );
 }

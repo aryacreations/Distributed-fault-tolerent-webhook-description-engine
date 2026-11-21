@@ -8,10 +8,11 @@ import {
   Github, 
   ShieldCheck, 
   Database,
-  Radio
+  Radio,
+  Play
 } from 'lucide-react';
 
-export default function Sidebar({ activeTab, setActiveTab }) {
+export default function Sidebar({ activeTab, setActiveTab, onOpenExplainer }) {
   const menuItems = [
     {
       id: 'overview',
@@ -114,7 +115,22 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       </div>
 
       {/* Footer Info & Infrastructure Status */}
-      <div className="space-y-4 pt-6 border-t border-slate-200/70">
+      <div className="space-y-4 pt-4 border-t border-slate-200/70">
+        {/* Animated Explainer Trigger Card */}
+        <button
+          onClick={onOpenExplainer}
+          className="w-full p-3 bg-gradient-to-r from-emerald-600 to-teal-500 rounded-2xl text-white text-left shadow-lg shadow-emerald-600/20 hover:from-emerald-500 hover:to-teal-400 transition active:scale-95 group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-100">
+              Interactive Tour
+            </span>
+            <Play className="w-3.5 h-3.5 fill-current text-white group-hover:scale-110 transition" />
+          </div>
+          <p className="text-xs font-extrabold mt-0.5">Watch Video Explainer</p>
+          <p className="text-[10px] text-emerald-100/90 mt-0.5">Voiceover & Animation</p>
+        </button>
+
         <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/60 space-y-2">
           <div className="flex items-center justify-between text-[11px]">
             <span className="text-slate-500 flex items-center gap-1.5 font-medium">

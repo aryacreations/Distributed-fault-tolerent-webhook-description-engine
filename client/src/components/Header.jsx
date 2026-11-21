@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCw, Activity, Zap, CheckCircle2 } from 'lucide-react';
+import { RefreshCw, Play, Sparkles } from 'lucide-react';
 
 const TAB_TITLES = {
   overview: {
@@ -24,7 +24,7 @@ const TAB_TITLES = {
   },
 };
 
-export default function Header({ activeTab, onRefresh, isRefreshing, stats }) {
+export default function Header({ activeTab, onRefresh, isRefreshing, stats, onOpenExplainer }) {
   const current = TAB_TITLES[activeTab] || TAB_TITLES.overview;
   const metrics = stats?.metrics;
 
@@ -40,13 +40,22 @@ export default function Header({ activeTab, onRefresh, isRefreshing, stats }) {
       </div>
 
       <div className="flex items-center space-x-3">
+        {/* Watch Animated Video Explainer Button */}
+        <button
+          onClick={onOpenExplainer}
+          className="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 shadow-md shadow-emerald-500/20 transition active:scale-95"
+        >
+          <Play className="w-3.5 h-3.5 fill-current" />
+          <span>Watch Explainer</span>
+        </button>
+
         {/* Metric Pill */}
         {metrics && (
-          <div className="hidden md:flex items-center space-x-2 bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-3 py-1.5 rounded-xl text-xs font-semibold">
+          <div className="hidden lg:flex items-center space-x-2 bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-3 py-1.5 rounded-xl text-xs font-semibold">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-            <span>{metrics.totalJobs} Jobs Processed</span>
+            <span>{metrics.totalJobs} Processed</span>
             <span className="text-emerald-300">|</span>
-            <span>{metrics.avgLatencyMs}ms Avg Latency</span>
+            <span>{metrics.avgLatencyMs}ms Latency</span>
           </div>
         )}
 
@@ -57,7 +66,7 @@ export default function Header({ activeTab, onRefresh, isRefreshing, stats }) {
           className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition active:scale-95 disabled:opacity-50"
         >
           <RefreshCw className={`w-3.5 h-3.5 text-slate-600 ${isRefreshing ? 'animate-spin text-emerald-600' : ''}`} />
-          <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
+          <span className="hidden sm:inline">{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
         </button>
       </div>
     </header>
