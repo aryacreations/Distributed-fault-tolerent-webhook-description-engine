@@ -11,6 +11,31 @@ app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
 
+// Root Landing Endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    name: 'Distributed Fault-Tolerant Webhook Dispatcher Engine API',
+    status: 'online',
+    version: '1.0.0',
+    documentation: 'https://github.com/aryacreations/Distributed-fault-tolerent-webhook-description-engine',
+    endpoints: {
+      health: '/health',
+      dispatch: 'POST /api/webhooks/dispatch',
+      jobs: 'GET /api/webhooks/jobs',
+      stats: 'GET /api/stats',
+      mockReceiver: 'ALL /api/mock-receiver',
+    },
+    architecture: {
+      ingestion: 'Non-blocking (202 Accepted in <30ms)',
+      queue: 'Upstash Redis + BullMQ',
+      database: 'MongoDB Atlas',
+      retries: 'Exponential Backoff (2s, 4s, 8s)',
+      rateLimiter: 'Token Bucket (5 req/s per domain)',
+      security: 'HMAC-SHA256 (X-Webhook-Signature)',
+    },
+  });
+});
+
 // Health Check Endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({
