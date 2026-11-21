@@ -1,0 +1,30 @@
+{
+  "name": "distributed-fault-tolerant-webhook-dispatcher",
+  "version": "1.0.0",
+  "description": "Production-grade distributed, fault-tolerant webhook dispatcher engine with exponential backoff and rate limiting",
+  "main": "server/src/server.js",
+  "scripts": {
+    "install:server": "cd server && npm install",
+    "install:client": "cd client && npm install",
+    "install:all": "npm run install:server && npm run install:client",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "start": "cd server && npm start",
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
+  },
+  "keywords": [
+    "webhook",
+    "distributed-systems",
+    "bullmq",
+    "redis",
+    "mongodb",
+    "rate-limiting",
+    "exponential-backoff",
+    "mern"
+  ],
+  "author": "Aryan Rajput",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
